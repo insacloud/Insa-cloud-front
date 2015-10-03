@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">INSA Cloud</string>
+    <string name="title_activity_main">Cloud...</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="btn_login">Login</string>
+    <string name="login_facebook">Login with Facebook</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Password</string>
+    <string name="btn_link_to_register">Register Here</string>
+    <string name="btn_skip">Skip...</string>
+    <string name="btn_register">Register</string>
+    <string name="btn_link_to_login">Login Instead</string>
+    <string name="register_activity">Register</string>
+    <string name="login_activity">Login</string>
+    <string name="facebook_app_id">176717182663521</string>
+    <string name="logout">Log out</string>
+</resources>

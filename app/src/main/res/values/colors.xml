@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#424242</color>
+    <color name="coca_cola_dim">#B25656</color>
+    <color name="white">#ffffff</color>
+    <color name="input_login">#000</color>
+    <color name="input_login_hint">#424242</color>
+    <color name="btn_login_bg">#ffffff</color>
+    <color name="input_register">#000</color>
+    <color name="input_register_hint">#424242</color>
+    <color name="btn_register_bg">#ffffff</color>
+    <color name="black">#000</color>
+</resources>
