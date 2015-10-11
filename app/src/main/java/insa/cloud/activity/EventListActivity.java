@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ListView;
 
 import android.widget.Toast;
@@ -15,14 +16,17 @@ import insa.cloud.R;
 
 public class EventListActivity extends Activity {
     ListView listView ;
+    ImageButton addPhotoBtn;
+    int selectedIndex=-1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event);
 
-        listView = (ListView) findViewById(R.id.list);
-
+        listView = (ListView) findViewById(R.id.eventList);
+        addPhotoBtn = (ImageButton) findViewById(R.id.addPhotoBtn);
+        listView.setSelector(R.drawable.bg_key);
         Event[] values =getEvents();
 
         ArrayAdapter<Event> adapter = new ArrayAdapter<Event>(this,android.R.layout.simple_list_item_1, values);
@@ -36,20 +40,26 @@ public class EventListActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-
-                // ListView Clicked item index
-                int itemPosition     = position;
-
-                // ListView Clicked item value
-                Event  event    = ((Event)listView.getItemAtPosition(position));
-                String itemValue = event.name;
-                int idi= event.id;
-                // Show Alert
-                Toast.makeText(getApplicationContext(),
-                        "Position :" + itemPosition + "  ListItem : " + itemValue+ "Id:"+ idi, Toast.LENGTH_LONG)
-                        .show();
-
+                view.setSelected(true);
+                selectedIndex=position;
             }
+        });
+
+        addPhotoBtn.setOnClickListener(new  View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String alertText="Please, select an event";
+                if (selectedIndex>=0 && selectedIndex<listView.getCount()) {
+                    Event selectedEvent = (Event) listView.getItemAtPosition(selectedIndex);
+                    String itemValue = selectedEvent.name;
+                    int idi = selectedEvent.id;
+
+                    alertText = "Position :" + selectedIndex + "  ListItem : " + itemValue + "  Id : " + idi;
+                }
+                    // Show Alert
+                    Toast.makeText(getApplicationContext(),alertText, Toast.LENGTH_LONG).show();
+
+                }
 
         });
     }

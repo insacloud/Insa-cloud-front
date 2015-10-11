@@ -2,19 +2,31 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-
-    <TextView
-
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_margin="5dp"
-    android:text="Event List"
-    android:textColor="#000"
-    android:textSize="20sp"
-    android:gravity="center_vertical"/>
-
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#F30A19">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:layout_margin="5dp"
+            android:text="Event List"
+            android:textColor="#000"
+            android:textSize="20sp"/>
+        <ImageButton
+            android:id="@+id/addPhotoBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="9dp"
+            android:src="@drawable/camera_icon"
+            android:background="#00FFFFFF"/>
+    </LinearLayout>
     <ListView
-        android:id="@+id/list"
+        android:id="@+id/eventList"
+        android:choiceMode="singleChoice"
+        android:listSelector="#666666"
         android:layout_height="wrap_content"
         android:layout_width="match_parent">
     </ListView>
