@@ -39,9 +39,9 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity
             android:name=".activity.SendPhotoActivity"
-            android:label="@string/title_activity_send_photo" >
+            android:label="@string/title_activity_send_photo" />
         <activity
-            android:name=".activity.EventActivity"
+            android:name=".activity.EventListActivity"
             android:label="@string/title_activity_event"
             android:parentActivityName="android.app.ListActivity" >
             <meta-data

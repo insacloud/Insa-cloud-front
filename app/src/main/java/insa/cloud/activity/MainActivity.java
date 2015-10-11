@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         btnEvents.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 if (session.isLoggedIn()) {
-                    Intent intent = new Intent(MainActivity.this, EventActivity.class);
+                    Intent intent = new Intent(MainActivity.this, EventListActivity.class);
                     startActivity(intent);
                     finish();
                 }

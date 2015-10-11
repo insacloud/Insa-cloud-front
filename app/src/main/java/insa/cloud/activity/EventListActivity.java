@@ -13,7 +13,7 @@ import android.widget.Toast;
 import insa.cloud.R;
 
 
-public class EventActivity extends Activity {
+public class EventListActivity extends Activity {
     ListView listView ;
 
     @Override
@@ -21,32 +21,11 @@ public class EventActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event);
 
-        // Get ListView object from xml
         listView = (ListView) findViewById(R.id.list);
 
-        // Defined Array values to show in ListView
-        Event[] values = new Event[] {
-               new Event("Event 1",1),
-                new Event("Event 2",2),
-                new Event("Event 3",4),
-                new Event("Event 4",5),
-                new Event("Event 5",3),
-                new Event("Event 6",1),
-                new Event("Event 7",1),
-                new Event("Event 8",1),
-                new Event("Event 9",1),
-                new Event("Event 10",10)
-
-        };
-
-        // Define a new Adapter
-        // First parameter - Context
-        // Second parameter - Layout for the row
-        // Third parameter - ID of the TextView to which the data is written
-        // Forth - the Array of data
+        Event[] values =getEvents();
 
         ArrayAdapter<Event> adapter = new ArrayAdapter<Event>(this,android.R.layout.simple_list_item_1, values);
-
 
         // Assign adapter to ListView
         listView.setAdapter(adapter);
@@ -74,26 +53,28 @@ public class EventActivity extends Activity {
 
         });
     }
-    private class EventListAdapter extends ArrayAdapter<String>{
-        private String[] values;
-        private int[] ids;
-        EventListAdapter(Context context,Event[] list){
-            super(context,-1,new String[0]);
-            setData(list);
-            this.addAll();
-        }
 
-        private void setData(Event[] list) {
-            int nbItems=list.length;
-            values = new String[nbItems];
-            ids= new int[nbItems];
-            for (int i=0;i<nbItems;i++){
-                values[i]=list[i].name;
-                ids[i]=list[i].id;
-            }
-        }
+    private Event[] getEvents() {
+        //Actually use a mock, as web service isn't available
+        return new Event[] {
+                new Event("Event 1",1),
+                new Event("Event 2",2),
+                new Event("Event 3",4),
+                new Event("Event 4",5),
+                new Event("Event 5",3),
+                new Event("Event 6",1),
+                new Event("Event 7",1),
+                new Event("Event 8",1),
+                new Event("Event 9",1),
+                new Event("Event 10",10),
+                new Event("Event 10",10),
+                new Event("Event 10",10),
+                new Event("Event 10",10),
+                new Event("Event 10",10)
 
+        };
     }
+
     private class Event {
         String name;
         int id;
