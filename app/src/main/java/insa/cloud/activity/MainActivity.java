@@ -17,6 +17,7 @@ import insa.cloud.global.SessionManager;
 public class MainActivity extends AppCompatActivity {
 
     private Button btnLogout;
+    private Button btnEvents;
     private SessionManager session;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
         session = new SessionManager(getApplicationContext());
 
         btnLogout = (Button) findViewById(R.id.btnLogout);
-
+        btnEvents = (Button) findViewById(R.id.btnEvent);
         //Skip to main
         if (!session.isLoggedIn()) {
             btnLogout.setText("Back");
@@ -36,28 +37,36 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (session.isLoggedIn()) {
                     session.setLogin(false);
-                    try{
+                    try {
                         LoginManager.getInstance().logOut();
-                    }
-                    catch(Exception e)
-                    {
+                    } catch (Exception e) {
 
                     }
                     Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                     startActivity(intent);
                     finish();
-                }
-                else
-                {
+                } else {
                     Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                     startActivity(intent);
                     finish();
                 }
+
+
+            }
+
+        });
+        btnEvents.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                if (session.isLoggedIn()) {
+                    Intent intent = new Intent(MainActivity.this, EventActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+
             }
 
         });
     }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
