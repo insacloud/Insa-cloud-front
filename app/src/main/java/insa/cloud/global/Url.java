@@ -7,4 +7,5 @@ public class Url {
     //WEB SERVICE
     public static String Login = UrlServer + "Login";
     public static String Register = UrlServer + "Register";
+    public static String UploadImage = UrlServer + "UploadImage";
 }
