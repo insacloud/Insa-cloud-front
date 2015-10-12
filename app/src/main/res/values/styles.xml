@@ -7,4 +7,8 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="android:windowContentTransitions">true</item>
     </style>
+
+    <style name="MyActionBarStyle" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+    </style>
 </resources>

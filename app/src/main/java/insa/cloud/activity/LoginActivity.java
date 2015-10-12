@@ -140,7 +140,7 @@ public class LoginActivity extends AppCompatActivity{
         btnSkip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(getApplicationContext(), MainActivity.class);
+                Intent i = new Intent(getApplicationContext(), SendPhotoActivity.class);
                 startActivity(i);
                 finish();
             }
