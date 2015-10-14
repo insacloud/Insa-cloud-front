@@ -42,10 +42,9 @@ public class LoginActivity extends AppCompatActivity{
     private Button btnSkip;
     private LoginButton btnLoginFacebook;
 
-
+    private ProgressDialog pDialog;
     private EditText inputEmail;
     private EditText inputPassword;
-    private ProgressDialog pDialog;
     private SessionManager session;
 
     private ProfileTracker profileTracker;
@@ -169,7 +168,7 @@ public class LoginActivity extends AppCompatActivity{
 
 
     public void Login(final String email, final String password) throws JSONException{
-        pDialog = new ProgressDialog(this);
+         pDialog = new ProgressDialog(this);
         pDialog.setMessage("Logging in ...");
         pDialog.show();
 

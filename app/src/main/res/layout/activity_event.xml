@@ -12,6 +12,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1.0"
             android:layout_margin="5dp"
+            android:gravity="center"
             android:text="Event List"
             android:textColor="#000"
             android:textSize="20sp"/>
@@ -26,7 +27,7 @@
     <ListView
         android:id="@+id/eventList"
         android:choiceMode="singleChoice"
-        android:listSelector="#666666"
+        android:listSelector="#ff520066"
         android:layout_height="wrap_content"
         android:layout_width="match_parent">
     </ListView>
