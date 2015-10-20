@@ -28,3 +28,4 @@ proguard/
 *.log
 . i d e a 
 .idea/modules.xml
+.idea/gradle.xml
