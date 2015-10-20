@@ -53,6 +53,14 @@
             android:name=".activity.EventInformationActivity"
             android:label="@string/title_activity_event_information" >
         </activity>
+        <activity
+            android:name=".activity.EventDetailsActivity"
+            android:label="@string/title_activity_event_details"
+            android:parentActivityName=".activity.EventListActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="insa.cloud.activity.EventListActivity" />
+        </activity>
     </application>
 
 </manifest>
