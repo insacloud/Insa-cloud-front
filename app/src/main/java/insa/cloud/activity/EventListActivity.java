@@ -2,6 +2,7 @@ package insa.cloud.activity;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -61,14 +62,11 @@ public class EventListActivity extends Activity implements ConnectionCallbacks,O
                 String alertText="Please, select an event";
                 if (selectedIndex>=0 && selectedIndex<listView.getCount()) {
                     Event selectedEvent = (Event) listView.getItemAtPosition(selectedIndex);
-                    String itemValue = selectedEvent.getTitle();
-                    String idi = selectedEvent.getId();
-
-                    alertText = "Position :" + selectedIndex + "  ListItem : " + itemValue + "  Id : " + idi;
-                }
-                    // Show Alert
-                    Toast.makeText(getApplicationContext(),alertText, Toast.LENGTH_LONG).show();
-
+                    String id = selectedEvent.getId();
+                    Intent intent = new Intent(EventListActivity.this, EventInformationActivity.class);
+                    intent.putExtra("eventID",id);
+                    startActivity(intent);
+                    }
                 }
 
         });
