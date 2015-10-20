@@ -1,4 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="app_name">INSA Cloud</string>
     <string name="title_activity_main">Cloud...</string>
     <string name="hello_world">Hello world!</string>
@@ -16,4 +18,6 @@
     <string name="facebook_app_id">176717182663521</string>
     <string name="logout">Log out</string>
     <string name="title_activity_send_photo">SendPhotoActivity</string>
+    <string name="title_activity_event">EventActivity</string>
+
 </resources>

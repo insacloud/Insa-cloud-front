@@ -8,4 +8,5 @@ public class Url {
     public static String Login = UrlServer + "Login";
     public static String Register = UrlServer + "Register";
     public static String UploadImage = UrlServer + "UploadImage";
+    public static String EventList = UrlServer + "EventList";
 }
