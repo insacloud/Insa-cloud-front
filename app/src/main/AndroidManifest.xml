@@ -17,8 +17,7 @@
 
         <activity
             android:name=".activity.LoginActivity"
-            android:label="@string/app_name"
-            android:windowSoftInputMode="adjustResize|stateVisible" >
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -52,6 +51,14 @@
         <activity
             android:name=".activity.EventInformationActivity"
             android:label="@string/title_activity_event_information" >
+        </activity>
+        <activity
+            android:name=".activity.EventDetailsActivity"
+            android:label="@string/title_activity_event_details"
+            android:parentActivityName=".activity.LoginActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="insa.cloud.activity.LoginActivity" />
         </activity>
     </application>
 

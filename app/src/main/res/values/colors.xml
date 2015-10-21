@@ -11,4 +11,5 @@
     <color name="btn_register_bg">#ffffff</color>
     <color name="black">#000</color>
     <color name="selected_item">#4d90fe</color>
+    <color name="tab_text">#000</color>
 </resources>

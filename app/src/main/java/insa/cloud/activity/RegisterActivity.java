@@ -82,7 +82,10 @@ public class RegisterActivity extends AppCompatActivity {
         btnSkip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(getApplicationContext(), MainActivity.class);
+                /*Intent i = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(i);
+                finish();*/
+                Intent i = new Intent(getApplicationContext(), EventDetailsActivity.class);
                 startActivity(i);
                 finish();
             }

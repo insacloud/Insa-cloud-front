@@ -2,6 +2,7 @@
 <resources>
 
     <string name="app_name">INSA Cloud</string>
+    <string name="event_details">Event</string>
     <string name="title_activity_main">Cloud...</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
@@ -20,5 +21,13 @@
     <string name="title_activity_send_photo">SendPhotoActivity</string>
     <string name="title_activity_event">EventActivity</string>
     <string name="title_activity_event_information">EventInformationActivity</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_event_details">EventDetailsActivity</string>
+
+    <string name="event_details_1st_page">Mosaic</string>
+    <string name="event_details_2nd_page">Event</string>
+    <string name="event_details_3rd_page">Photo</string>
 
 </resources>
