@@ -11,4 +11,6 @@
     <color name="btn_register_bg">#ffffff</color>
     <color name="black">#000</color>
     <color name="selected_item">#4d90fe</color>
+
+    <color name="black_overlay">#66000000</color>
 </resources>
