@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 *.iml
 Thumbs.db
+=======
+/.idea
+>>>>>>> pinch to zoom
 # Built application files
 *.apk
 *.ap_
@@ -27,3 +31,9 @@ proguard/
 
 # Log Files
 *.log
+<<<<<<< HEAD
+=======
+. i d e a 
+.idea/modules.xml
+.idea/gradle.xml
+>>>>>>> pinch to zoom

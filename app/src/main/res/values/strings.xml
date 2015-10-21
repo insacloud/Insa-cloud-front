@@ -22,6 +22,7 @@
     <string name="title_activity_event">EventActivity</string>
     <string name="title_activity_event_information">EventInformationActivity</string>
 
+<<<<<<< HEAD
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_event_details">EventDetailsActivity</string>
@@ -29,5 +30,10 @@
     <string name="event_details_1st_page">Mosaic</string>
     <string name="event_details_2nd_page">Event</string>
     <string name="event_details_3rd_page">Photo</string>
+=======
+    <string name="title_activity_image_viewer">ImageViewer</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+>>>>>>> pinch to zoom
 
 </resources>

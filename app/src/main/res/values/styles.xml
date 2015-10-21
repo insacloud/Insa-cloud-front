@@ -11,6 +11,7 @@
     <style name="MyActionBarStyle" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
     </style>
+<<<<<<< HEAD
     <style name="MyCustomTabLayout" parent="Widget.Design.TabLayout">
         <item name="tabTextAppearance">@style/MyCustomTabText</item>
         <item name="tabSelectedTextColor">@color/coca_cola_dim</item>
@@ -19,5 +20,18 @@
     <style name="MyCustomTabText" parent="TextAppearance.AppCompat.Button">
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/coca_cola_dim</item>
+=======
+
+    <style name="FullscreenTheme" parent="AppTheme">
+        <item name="android:actionBarStyle">@style/FullscreenActionBarStyle</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="android:windowBackground">@null</item>
+        <item name="metaButtonBarStyle">?android:attr/buttonBarStyle</item>
+        <item name="metaButtonBarButtonStyle">?android:attr/buttonBarButtonStyle</item>
+    </style>
+
+    <style name="FullscreenActionBarStyle" parent="Widget.AppCompat.ActionBar">
+        <item name="android:background">@color/black_overlay</item>
+>>>>>>> pinch to zoom
     </style>
 </resources>
