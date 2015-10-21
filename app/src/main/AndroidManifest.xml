@@ -53,7 +53,7 @@
                 android:value="insa.cloud.activity.LoginActivity" />
         </activity>
         <activity
-            android:name=".activity.ImageViewer"
+            android:name=".activity.ImageViewerActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_image_viewer"
             android:theme="@style/FullscreenTheme" >

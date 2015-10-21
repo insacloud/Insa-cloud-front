@@ -20,7 +20,7 @@ import insa.cloud.R;
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-public class ImageViewer extends AppCompatActivity {
+public class ImageViewerActivity extends AppCompatActivity {
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -77,7 +77,7 @@ public class ImageViewer extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        displayTestImage();
+        //displayTestImage();
     }
 
     private void displayTestImage() {
@@ -100,8 +100,6 @@ public class ImageViewer extends AppCompatActivity {
                 }
             });
         }
-
-
         mImageContainer.addView(originalImageView);
     }
 
