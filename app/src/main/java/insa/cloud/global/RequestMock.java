@@ -1,6 +1,8 @@
 package insa.cloud.global;
 import android.location.Location;
 import java.util.Date;
+import java.util.GregorianCalendar;
+
 /**
  * Created by Paul on 20/10/2015.
  */
@@ -21,8 +23,8 @@ public class RequestMock implements RequestInterface {
     }
 
     public Event getEvent(String id){
-        Date startDate = new Date(2015,11,11,11,11);
-        Date endDate = new Date(2015,12,12,12,12);
+        Date startDate = new GregorianCalendar(2015,10,11,11,11).getTime();
+        Date endDate = new GregorianCalendar(2015,11,12,12,12).getTime();
         switch (id){
             case "0":
                 return new Event("0","Concert","Concert Transbordeur","Lyon",startDate,endDate,"Transbordeur",45.7838117,4.8584146,null);

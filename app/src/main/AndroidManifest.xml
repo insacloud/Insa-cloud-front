@@ -38,19 +38,12 @@
             android:label="@string/app_name"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity
-            android:name=".activity.SendPhotoActivity"
-            android:label="@string/title_activity_send_photo" />
-        <activity
             android:name=".activity.EventListActivity"
             android:label="@string/title_activity_event"
             android:parentActivityName="android.app.ListActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="android.app.ListActivity" />
-        </activity>
-        <activity
-            android:name=".activity.EventInformationActivity"
-            android:label="@string/title_activity_event_information" >
         </activity>
         <activity
             android:name=".activity.EventDetailsActivity"

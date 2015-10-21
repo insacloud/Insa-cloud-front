@@ -63,7 +63,7 @@ public class EventListActivity extends Activity implements ConnectionCallbacks,O
                 if (selectedIndex>=0 && selectedIndex<listView.getCount()) {
                     Event selectedEvent = (Event) listView.getItemAtPosition(selectedIndex);
                     String id = selectedEvent.getId();
-                    Intent intent = new Intent(EventListActivity.this, EventInformationActivity.class);
+                    Intent intent = new Intent(EventListActivity.this, EventDetailsActivity.class);
                     intent.putExtra("eventID",id);
                     startActivity(intent);
                     }
