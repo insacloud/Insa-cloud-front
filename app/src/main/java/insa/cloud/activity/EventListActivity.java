@@ -12,6 +12,8 @@ import android.widget.ListView;
 
 import android.widget.Toast;
 import android.location.Location;
+
+import com.android.volley.VolleyError;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
@@ -19,16 +21,16 @@ import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListe
 
 import com.google.android.gms.location.LocationServices;
 import insa.cloud.R;
+import insa.cloud.global.RequestCallback;
 import insa.cloud.global.RequestInterface;
 import insa.cloud.global.RequestMock;
 import insa.cloud.global.Event;
 
 
 public class EventListActivity extends Activity implements ConnectionCallbacks,OnConnectionFailedListener{
-    ListView listView ;
+    final ListView listView=(ListView) findViewById(R.id.eventList) ;
     ImageButton addPhotoBtn;
     int selectedIndex=-1;
-    RequestInterface requests = new RequestMock();
     GoogleApiClient mGoogleApiClient;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +43,6 @@ public class EventListActivity extends Activity implements ConnectionCallbacks,O
                 .addApi(LocationServices.API)
                 .build();
 
-        listView = (ListView) findViewById(R.id.eventList);
         addPhotoBtn = (ImageButton) findViewById(R.id.addPhotoBtn);
         listView.setSelector(R.drawable.bg_key);
 
@@ -84,17 +85,28 @@ public class EventListActivity extends Activity implements ConnectionCallbacks,O
         Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                 mGoogleApiClient);
         Event[] events;
+        EventListFiller filler=new EventListFiller();
         if (mLastLocation != null) {
-           events=requests.getEventList(mLastLocation);
+           MainActivity.request.getEventList(mLastLocation, filler);
         }else{
-            events=requests.getEventList();
+            MainActivity.request.getEventList(filler);
         }
-        ArrayAdapter<Event> adapter = new ArrayAdapter<Event>(this,android.R.layout.simple_list_item_1, events);
 
         // Assign adapter to ListView
-        listView.setAdapter(adapter);
     }
+    public class EventListFiller implements RequestCallback<Event[]>{
 
+        @Override
+        public void onResponse(Event[] events) {
+            ArrayAdapter<Event> adapter = new ArrayAdapter<Event>(EventListActivity.this,android.R.layout.simple_list_item_1, events);
+            listView.setAdapter(adapter);
+        }
+
+        @Override
+        public void onErrorResponse(VolleyError error) {
+
+        }
+    }
     @Override
     public void onConnectionSuspended(int i) {
 
