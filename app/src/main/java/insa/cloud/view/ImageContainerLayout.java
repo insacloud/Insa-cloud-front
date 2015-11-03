@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.PointF;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -28,6 +29,10 @@ public class ImageContainerLayout extends FrameLayout {
 
     private ScaleGestureDetector mScaleDetector;
     private float mScaleFactor = 1.f;
+
+    PointF downPoint = new PointF(0, 0);
+    ArrayList<PointF> childOrigins;
+
 
 
     public ImageContainerLayout(Context context) {
@@ -62,7 +67,7 @@ public class ImageContainerLayout extends FrameLayout {
 
                     for (int i = 0; i < getChildCount(); i++) {
                         View child = getChildAt(i);
-                        child.setX(child.getX() + getWidth()/2f);
+                        child.setX(child.getX() + getWidth() / 2f);
                         child.setY(child.getY() + getWidth() / 2f);
                     }
                 }
@@ -95,7 +100,7 @@ public class ImageContainerLayout extends FrameLayout {
         int imageHeight = 0;
         int j = 0;
         for (int i = 0; i < drawables.length; i++) {
-            if(i % colPerRow == 0 && i != 0) {
+            if (i % colPerRow == 0 && i != 0) {
                 j++;
             }
 
@@ -104,7 +109,7 @@ public class ImageContainerLayout extends FrameLayout {
             ImageView imageView = new ImageView(getContext());
             imageView.setImageBitmap(rows[j][i % colPerRow]);
 
-            if(params == null) {
+            if (params == null) {
                 imageWidth = rows[j][i % colPerRow].getWidth();
                 imageHeight = rows[j][i % colPerRow].getHeight();
                 params = new LayoutParams(imageWidth, imageHeight);
@@ -112,8 +117,8 @@ public class ImageContainerLayout extends FrameLayout {
             imageView.setLayoutParams(params);
             addView(imageView);
 
-            imageView.setX(-(imageWidth * colPerRow)/ 2 + (i % colPerRow) * imageWidth + getWidth()/2);
-            imageView.setY(-(imageHeight * numberOfRow)/2 + (j * imageHeight) + getHeight()/2);
+            imageView.setX(-(imageWidth * colPerRow) / 2 + (i % colPerRow) * imageWidth + getWidth() / 2);
+            imageView.setY(-(imageHeight * numberOfRow) / 2 + (j * imageHeight) + getHeight() / 2);
         }
         imagesByZoom.put(0, rows);
     }
@@ -130,10 +135,41 @@ public class ImageContainerLayout extends FrameLayout {
 
 
 
+
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         // Let the ScaleGestureDetector inspect all events.
-        mScaleDetector.onTouchEvent(ev);
+        if(ev.getPointerCount() > 1) {
+            mScaleDetector.onTouchEvent(ev);
+        } else {
+            switch (ev.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    if(childOrigins == null) {
+                        childOrigins = new ArrayList<>(getChildCount());
+                    }
+
+                    // Save the orgin of te movement
+                    downPoint.set(ev.getX(),ev.getY());
+
+                    // Save the position of the child before the movement
+                    for (int i = 0; i < getChildCount(); i++) {
+                        View child = getChildAt(i);
+                        if(childOrigins.size() <= i) {
+                            childOrigins.add(new PointF(child.getX(), child.getY()));
+                        } else {
+                            childOrigins.get(i).set(child.getX(), child.getY());
+                        }
+                    }
+                    return true;
+                case MotionEvent.ACTION_MOVE:
+                    for (int i = 0; i < getChildCount(); i++) {
+                        View child = getChildAt(i);
+                        PointF childOrigin = childOrigins.get(i);
+                        child.setX(childOrigin.x + ev.getX() - downPoint.x);
+                        child.setY(childOrigin.y + ev.getY() - downPoint.y);
+                    }
+            }
+        }
         return true;
     }
 
@@ -154,14 +190,20 @@ public class ImageContainerLayout extends FrameLayout {
         public boolean onScale(ScaleGestureDetector detector) {
             mScaleFactor *= detector.getScaleFactor();
 
+            float pivotX, pivotY;
+            pivotX = detector.getFocusX();
+            pivotY = detector.getFocusY();
+
 
             // Don't let the object get too small or too large.
             mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 5.0f));
 
             for (int i = 0; i < getChildCount(); i++) {
                 View child = getChildAt(i);
-                child.setPivotX(getWidth()/2f  - child.getX());
-                child.setPivotY(getHeight()/2f - child.getY() );
+//                child.setPivotX(getWidth()/2f  - child.getX());
+//                child.setPivotY(getHeight()/2f - child.getY() );
+                child.setPivotX(pivotX - child.getX());
+                child.setPivotY(pivotY - child.getY());
                 child.setScaleX(mScaleFactor);
                 child.setScaleY(mScaleFactor);
             }
