@@ -1,10 +1,15 @@
 package insa.cloud.global;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 /**
  * Created by Paul on 20/10/2015.
  */
 public class Event {
-
+    private static final SimpleDateFormat formatter = new SimpleDateFormat("dd/MMM/yyyy HH:mm");
     private String id;
     private String type;
     private String title;
@@ -14,11 +19,11 @@ public class Event {
     private String venue;
     private double longitude;
     private double latitude;
-
+    private String idPoster;
     public Event(String id,String title){
         this(id,null,title,null,null,null,null,0,0,null);
     }
-    public Event(String id, String type, String title, String location, Date startDate, Date endDate, String venue, double longitude, double latitude, byte[] poster) {
+    public Event(String id, String type, String title, String location, Date startDate, Date endDate, String venue, double longitude, double latitude, String idPoster) {
         this.id = id;
         this.type = type;
         this.title = title;
@@ -28,7 +33,19 @@ public class Event {
         this.venue = venue;
         this.longitude = longitude;
         this.latitude = latitude;
-        this.poster = poster;
+        this.idPoster = idPoster;
+    }
+    public Event(JSONObject jsonObject) throws JSONException, ParseException {
+        this(jsonObject.get("id").toString(),
+                jsonObject.get("type").toString(),
+                jsonObject.get("title").toString(),
+                jsonObject.get("location").toString(),
+                formatter.parse(jsonObject.get("startDate").toString()),
+                formatter.parse((String)jsonObject.get("endDate").toString()),
+                jsonObject.get("venue").toString(),
+                (double) jsonObject.get("longitude"),
+                (double) jsonObject.get("latitude"),
+                jsonObject.get("idPoster").toString());
     }
 
     public Date getStartDate() {
@@ -38,8 +55,6 @@ public class Event {
     public Date getEndDate() {
         return endDate;
     }
-
-    private byte[] poster;
 
     public String getId() {
         return id;
@@ -53,8 +68,8 @@ public class Event {
         return title;
     }
 
-    public byte[] getPoster() {
-        return poster;
+    public String getIdPoster() {
+        return idPoster;
     }
 
     public double getLatitude() {
