@@ -49,7 +49,10 @@ public class ImageContainerLayout extends FrameLayout {
     private void init(Context context) {
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
         populateWithDummy();
+        resizeChildren();
+    }
 
+    private void resizeChildren() {
         ViewTreeObserver viewTreeObserver = getViewTreeObserver();
         if (viewTreeObserver.isAlive()) {
             viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -90,8 +93,6 @@ public class ImageContainerLayout extends FrameLayout {
         LayoutParams params = null;
         int imageWidth = 0;
         int imageHeight = 0;
-        int xCoor = 0;
-        int yCoor = 0;
         int j = 0;
         for (int i = 0; i < drawables.length; i++) {
             if(i % colPerRow == 0 && i != 0) {
@@ -159,6 +160,8 @@ public class ImageContainerLayout extends FrameLayout {
 
             for (int i = 0; i < getChildCount(); i++) {
                 View child = getChildAt(i);
+                child.setPivotX(getWidth()/2f  - child.getX());
+                child.setPivotY(getHeight()/2f - child.getY() );
                 child.setScaleX(mScaleFactor);
                 child.setScaleY(mScaleFactor);
             }
