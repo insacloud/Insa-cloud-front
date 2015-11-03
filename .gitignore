@@ -30,3 +30,6 @@ proguard/
 . i d e a 
 .idea/modules.xml
 .idea/gradle.xml
+
+Thumbs.db
+*/Thumbs.db
