@@ -3,17 +3,15 @@ package insa.cloud.view;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.PointF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-
-import com.google.android.gms.vision.Frame;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,15 +22,23 @@ import insa.cloud.R;
 public class ImageContainerLayout extends FrameLayout {
 
 
-    HashMap<Integer, Bitmap[][]> imagesByZoom = new HashMap<>();
+    public static final float MIN_SCALE_FACTOR = 1.0f;
+    public static final float MAX_SCALE_FACTOR = 4.0f;
+    public float mHigherScaleFactor = -1f;
+    public float mLowerScaleFactor = -1f;
+    static  int mMaxZoomLevel = 1;
+
+    ArrayList<Bitmap[][]> imagesByZoom = new ArrayList<>();
+
+    int mFullImageWidth = 0;
 
 
     private ScaleGestureDetector mScaleDetector;
     private float mScaleFactor = 1.f;
+    private int mCurrentZoomLevel = 0;
 
     PointF downPoint = new PointF(0, 0);
     ArrayList<PointF> childOrigins;
-
 
 
     public ImageContainerLayout(Context context) {
@@ -54,8 +60,11 @@ public class ImageContainerLayout extends FrameLayout {
     private void init(Context context) {
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
         populateWithDummy();
+
+        displayAllImageForZoomLevel(0);
         resizeChildren();
     }
+
 
     private void resizeChildren() {
         ViewTreeObserver viewTreeObserver = getViewTreeObserver();
@@ -68,7 +77,7 @@ public class ImageContainerLayout extends FrameLayout {
                     for (int i = 0; i < getChildCount(); i++) {
                         View child = getChildAt(i);
                         child.setX(child.getX() + getWidth() / 2f);
-                        child.setY(child.getY() + getWidth() / 2f);
+                        child.setY(child.getY() + getHeight() / 2f);
                     }
                 }
             });
@@ -76,7 +85,218 @@ public class ImageContainerLayout extends FrameLayout {
     }
 
 
+    private float displayAllImageForZoomLevel(int zoomLevel) {
+
+        Log.d("LoadingImages", "Zoom Level : " + zoomLevel);
+        if (zoomLevel >= 0 &&  zoomLevel < imagesByZoom.size()) {
+            Bitmap[][] images = imagesByZoom.get(zoomLevel);
+            int childIndex = 0;
+            int colPerRow, numberOfRow;
+            ImageView currentImageView;
+
+            LayoutParams params = null;
+            int imageWidth = 0;
+            int imageHeight = 0;
+
+            numberOfRow = images.length;
+            if(numberOfRow < 1) {
+                Log.w("ReplaceImage", "No images available for ZoomLevel " + zoomLevel);
+                return 0;
+            }
+
+            colPerRow = images[0].length;
+
+            //Check if we have images and set the number of col and rows we have
+            if(colPerRow < 1) {
+                Log.w("ReplaceImage", "No images available for ZoomLevel " + zoomLevel + "at row 0");
+                return 0;
+            }
+            if(numberOfRow < 1) {
+                Log.w("ReplaceImage", "No images available for ZoomLevel " + zoomLevel);
+                return 0;
+            }
+
+
+            // Display all imageView from the Bitmap Array
+            for (int i = 0; i < numberOfRow; i++) {
+                for (int j = 0; j < images[i].length; j++) {
+                    while (childIndex < getChildCount() && !(getChildAt(childIndex) instanceof ImageView)) {
+                        childIndex++;
+                    }
+
+                    if (childIndex < getChildCount()) {
+                        currentImageView = (ImageView) getChildAt(childIndex);
+                    } else {
+                        currentImageView = new ImageView(getContext());
+                        addView(currentImageView);
+                    }
+                    Bitmap bitmap = images[i][j];
+                    currentImageView.setImageBitmap(bitmap);
+                    currentImageView.setVisibility(VISIBLE);
+
+
+
+
+                    if (params == null) {
+                        // Resize the images to appear at 1:1 ratio
+                        imageWidth = bitmap.getWidth();
+                        imageHeight = bitmap.getHeight();
+                        params = new LayoutParams(imageWidth, imageHeight);
+                    }
+                    currentImageView.setLayoutParams(params);
+
+                    // Set the coordinate such as the image are well placed
+                    currentImageView.setX(j * imageWidth + getWidth() / 2 - (imageWidth*colPerRow) / 2);
+                    currentImageView.setY(i * imageHeight + getHeight()/2 - (imageHeight*numberOfRow)/2);
+
+                    childIndex++;
+                }
+
+            }
+
+
+
+
+            while (childIndex < getChildCount()) {
+                if(getChildAt(childIndex) instanceof ImageView) {
+                    getChildAt(childIndex).setVisibility(GONE);
+                }
+                childIndex++;
+            }
+
+            mFullImageWidth = imageWidth * colPerRow;
+//            if(zoomLevel > 0) {
+//                mLowerScaleFactor = (imagesByZoom.get(zoomLevel - 1).length * imageWidth)/(float) mFullImageWidth;
+//            } else {
+                mLowerScaleFactor = MIN_SCALE_FACTOR;
+//            }
+
+            if(zoomLevel < imagesByZoom.size() - 1) {
+                mHigherScaleFactor = (imagesByZoom.get(zoomLevel + 1)[0].length * imageWidth)/(float) mFullImageWidth;
+            } else {
+                mHigherScaleFactor = MAX_SCALE_FACTOR;
+            }
+
+            Log.d("Scale","ScaleFActor : " + mLowerScaleFactor + " " + mHigherScaleFactor );
+
+
+        }
+        return mScaleFactor;
+    }
+
+    private Bitmap getBitmapForCoordinateAndZoom(int x, int y, int zoom) {
+        //Trouver les coordonne du centre du parent dans l'image
+        // Trouver dans quelle portion cette cordonne se trouve (
+        Bitmap[][] images = imagesByZoom.get(zoom);
+        Bitmap[] centerRow = images[images.length / 2];
+        return centerRow[centerRow.length / 2];
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        // Let the ScaleGestureDetector inspect all events.
+        if (ev.getPointerCount() > 1) {
+            mScaleDetector.onTouchEvent(ev);
+            //Log.d("ImageAction", "Scale Event");
+        } else {
+          // return handleMove(ev);
+        }
+        return true;
+    }
+
+
+    private boolean handleMove(MotionEvent ev) {
+        switch (ev.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                //Log.d("ImageAction", "Down Event");
+                if (childOrigins == null) {
+                    childOrigins = new ArrayList<>(getChildCount());
+                } else {
+                    childOrigins.clear();
+                }
+
+                // Save the orgin of te movement
+                downPoint.set(ev.getX(), ev.getY());
+
+                // Save the position of the child before the movement
+                for (int i = 0; i < getChildCount(); i++) {
+                    View child = getChildAt(i);
+                    PointF childOrigin;
+                    if (i >= childOrigins.size()) {
+                        childOrigin = new PointF();
+                        childOrigins.add(childOrigin);
+                    } else {
+                        childOrigin = childOrigins.get(i);
+                    }
+                    childOrigin.set(child.getX(), child.getY());
+                }
+                return true;
+            case MotionEvent.ACTION_MOVE:
+                if(getChildCount() == childOrigins.size()) {
+                    for (int i = 0; i < getChildCount(); i++) {
+                        View child = getChildAt(i);
+                        PointF childOrigin = childOrigins.get(i);
+                        child.setX(childOrigin.x + ev.getX() - downPoint.x);
+                        child.setY(childOrigin.y + ev.getY() - downPoint.y);
+                    }
+                    return true;
+                }
+                return false;
+        }
+        return false;
+    }
+
+    private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+
+
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+            mScaleFactor *= detector.getScaleFactor();
+
+            float pivotX, pivotY;
+//            pivotX = detector.getFocusX();
+//            pivotY = detector.getFocusY();
+            pivotX = getWidth()/2;
+            pivotY = getHeight()/2;
+            // Don't let the object get too small or too large.
+            mScaleFactor = Math.max(mLowerScaleFactor, Math.min(mScaleFactor, mHigherScaleFactor));
+
+            if (mScaleFactor >= mHigherScaleFactor && mCurrentZoomLevel < mMaxZoomLevel) {
+             /*   mScaleFactor = */ displayAllImageForZoomLevel(++mCurrentZoomLevel);
+                mScaleFactor = 1.f;
+
+            } else if (mScaleFactor <= mLowerScaleFactor && mCurrentZoomLevel > 0) {
+                /*mScaleFactor = */displayAllImageForZoomLevel(--mCurrentZoomLevel);
+                mScaleFactor = mHigherScaleFactor;
+            }
+
+            scaleAllChildren(pivotX, pivotY);
+
+            invalidate();
+            return true;
+        }
+        private void scaleAllChildren(float pivotX, float pivotY) {
+            for (int i = 0; i < getChildCount(); i++) {
+                View child = getChildAt(i);
+//                child.setPivotX(getWidth()/2f  - child.getX());
+//                child.setPivotY(getHeight()/2f - child.getY() );
+                child.setPivotX(pivotX - child.getX());
+                child.setPivotY(pivotY - child.getY());
+                child.setScaleX(mScaleFactor);
+                child.setScaleY(mScaleFactor);
+            }
+        }
+
+    }
+
     public void populateWithDummy() {
+
+        Bitmap[][] imagesZoom0 = new Bitmap[1][1];
+        Bitmap initBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.timetravel_small_effect);
+        imagesZoom0[0][0] = initBitmap;
+
+        imagesByZoom.add(0, imagesZoom0);
+
         int[] drawables = {
                 R.drawable.slice_0_0,
                 R.drawable.slice_0_1,
@@ -92,124 +312,20 @@ public class ImageContainerLayout extends FrameLayout {
                 R.drawable.slice_2_3,
         };
 
+
         int colPerRow = 4;
         int numberOfRow = 3;
-        Bitmap[][] rows = new Bitmap[numberOfRow][colPerRow];
-        LayoutParams params = null;
-        int imageWidth = 0;
-        int imageHeight = 0;
+        Bitmap[][] imagesZoom1 = new Bitmap[numberOfRow][colPerRow];
         int j = 0;
         for (int i = 0; i < drawables.length; i++) {
             if (i % colPerRow == 0 && i != 0) {
                 j++;
             }
-
-
-            rows[j][i % colPerRow] = BitmapFactory.decodeResource(getResources(), drawables[i]);
-            ImageView imageView = new ImageView(getContext());
-            imageView.setImageBitmap(rows[j][i % colPerRow]);
-
-            if (params == null) {
-                imageWidth = rows[j][i % colPerRow].getWidth();
-                imageHeight = rows[j][i % colPerRow].getHeight();
-                params = new LayoutParams(imageWidth, imageHeight);
-            }
-            imageView.setLayoutParams(params);
-            addView(imageView);
-
-            imageView.setX(-(imageWidth * colPerRow) / 2 + (i % colPerRow) * imageWidth + getWidth() / 2);
-            imageView.setY(-(imageHeight * numberOfRow) / 2 + (j * imageHeight) + getHeight() / 2);
+            // Add eachBitmap to the
+            imagesZoom1[j][i % colPerRow] = BitmapFactory.decodeResource(getResources(), drawables[i]);
         }
-        imagesByZoom.put(0, rows);
-    }
 
-    @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        super.onLayout(changed, left, top, right, bottom);
-    }
+        imagesByZoom.add(1, imagesZoom1);
 
-
-    public void addImage(Bitmap bitmap) {
-
-    }
-
-
-
-
-    @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        // Let the ScaleGestureDetector inspect all events.
-        if(ev.getPointerCount() > 1) {
-            mScaleDetector.onTouchEvent(ev);
-        } else {
-            switch (ev.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    if(childOrigins == null) {
-                        childOrigins = new ArrayList<>(getChildCount());
-                    }
-
-                    // Save the orgin of te movement
-                    downPoint.set(ev.getX(),ev.getY());
-
-                    // Save the position of the child before the movement
-                    for (int i = 0; i < getChildCount(); i++) {
-                        View child = getChildAt(i);
-                        if(childOrigins.size() <= i) {
-                            childOrigins.add(new PointF(child.getX(), child.getY()));
-                        } else {
-                            childOrigins.get(i).set(child.getX(), child.getY());
-                        }
-                    }
-                    return true;
-                case MotionEvent.ACTION_MOVE:
-                    for (int i = 0; i < getChildCount(); i++) {
-                        View child = getChildAt(i);
-                        PointF childOrigin = childOrigins.get(i);
-                        child.setX(childOrigin.x + ev.getX() - downPoint.x);
-                        child.setY(childOrigin.y + ev.getY() - downPoint.y);
-                    }
-            }
-        }
-        return true;
-    }
-
-    @Override
-    public void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-
-        canvas.save();
-        canvas.scale(mScaleFactor, mScaleFactor);
-        //...
-        //Your onDraw() code
-        //...
-        canvas.restore();
-    }
-
-    private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
-        @Override
-        public boolean onScale(ScaleGestureDetector detector) {
-            mScaleFactor *= detector.getScaleFactor();
-
-            float pivotX, pivotY;
-            pivotX = detector.getFocusX();
-            pivotY = detector.getFocusY();
-
-
-            // Don't let the object get too small or too large.
-            mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 5.0f));
-
-            for (int i = 0; i < getChildCount(); i++) {
-                View child = getChildAt(i);
-//                child.setPivotX(getWidth()/2f  - child.getX());
-//                child.setPivotY(getHeight()/2f - child.getY() );
-                child.setPivotX(pivotX - child.getX());
-                child.setPivotY(pivotY - child.getY());
-                child.setScaleX(mScaleFactor);
-                child.setScaleY(mScaleFactor);
-            }
-
-            invalidate();
-            return true;
-        }
     }
 }
