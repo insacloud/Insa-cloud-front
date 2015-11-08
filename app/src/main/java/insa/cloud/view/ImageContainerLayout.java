@@ -1,8 +1,6 @@
 package insa.cloud.view;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.PointF;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -14,9 +12,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
-import insa.cloud.R;
+import insa.cloud.global.ImageProvider;
 
 
 public class ImageContainerLayout extends FrameLayout {
@@ -26,9 +23,9 @@ public class ImageContainerLayout extends FrameLayout {
     public static final float MAX_SCALE_FACTOR = 4.0f;
     public float mHigherScaleFactor = -1f;
     public float mLowerScaleFactor = -1f;
-    static  int mMaxZoomLevel = 1;
+    static int mMaxZoomLevel = 1;
 
-    ArrayList<Bitmap[][]> imagesByZoom = new ArrayList<>();
+    ImageProvider provider;
 
     int mFullImageWidth = 0;
 
@@ -43,28 +40,36 @@ public class ImageContainerLayout extends FrameLayout {
 
     public ImageContainerLayout(Context context) {
         super(context);
-        init(context);
+
     }
 
     public ImageContainerLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context);
+
     }
 
     public ImageContainerLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context);
+
     }
 
 
     private void init(Context context) {
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
-        populateWithDummy();
 
         displayAllImageForZoomLevel(0);
         resizeChildren();
     }
 
+    public void setProvider(ImageProvider provider) {
+        this.provider = provider;
+        provider.loadMetaData(new ImageProvider.LoadedCallBack() {
+            @Override
+            public void onLoaded() {
+                init(getContext());
+            }
+        });
+    }
 
     private void resizeChildren() {
         ViewTreeObserver viewTreeObserver = getViewTreeObserver();
@@ -87,31 +92,33 @@ public class ImageContainerLayout extends FrameLayout {
 
     private float displayAllImageForZoomLevel(int zoomLevel) {
 
+        if(provider == null) return -1;
+
         Log.d("LoadingImages", "Zoom Level : " + zoomLevel);
-        if (zoomLevel >= 0 &&  zoomLevel < imagesByZoom.size()) {
-            Bitmap[][] images = imagesByZoom.get(zoomLevel);
+        if (zoomLevel >= 0 && zoomLevel <= provider.getMaxZoomLevel()) {
+
             int childIndex = 0;
             int colPerRow, numberOfRow;
             ImageView currentImageView;
 
             LayoutParams params = null;
-            int imageWidth = 0;
-            int imageHeight = 0;
+            int imageWidth = provider.getTillWidth();
+            int imageHeight = provider.getTillHeight();
 
-            numberOfRow = images.length;
-            if(numberOfRow < 1) {
+            numberOfRow = provider.getRowCountForZoom(zoomLevel);
+            if (numberOfRow < 1) {
                 Log.w("ReplaceImage", "No images available for ZoomLevel " + zoomLevel);
                 return 0;
             }
 
-            colPerRow = images[0].length;
+            colPerRow = provider.getColCountForZoom(zoomLevel);
 
             //Check if we have images and set the number of col and rows we have
-            if(colPerRow < 1) {
+            if (colPerRow < 1) {
                 Log.w("ReplaceImage", "No images available for ZoomLevel " + zoomLevel + "at row 0");
                 return 0;
             }
-            if(numberOfRow < 1) {
+            if (numberOfRow < 1) {
                 Log.w("ReplaceImage", "No images available for ZoomLevel " + zoomLevel);
                 return 0;
             }
@@ -119,7 +126,7 @@ public class ImageContainerLayout extends FrameLayout {
 
             // Display all imageView from the Bitmap Array
             for (int i = 0; i < numberOfRow; i++) {
-                for (int j = 0; j < images[i].length; j++) {
+                for (int j = 0; j < colPerRow; j++) {
                     while (childIndex < getChildCount() && !(getChildAt(childIndex) instanceof ImageView)) {
                         childIndex++;
                     }
@@ -130,67 +137,47 @@ public class ImageContainerLayout extends FrameLayout {
                         currentImageView = new ImageView(getContext());
                         addView(currentImageView);
                     }
-                    Bitmap bitmap = images[i][j];
-                    currentImageView.setImageBitmap(bitmap);
+                    //Bitmap bitmap = images[i][j];
+                    //currentImageView.setImageBitmap(bitmap);
+                    provider.fillImageViewForCoordinate(currentImageView, zoomLevel, i, j);
                     currentImageView.setVisibility(VISIBLE);
 
 
-
-
                     if (params == null) {
-                        // Resize the images to appear at 1:1 ratio
-                        imageWidth = bitmap.getWidth();
-                        imageHeight = bitmap.getHeight();
                         params = new LayoutParams(imageWidth, imageHeight);
                     }
                     currentImageView.setLayoutParams(params);
 
                     // Set the coordinate such as the image are well placed
-                    currentImageView.setX(j * imageWidth + getWidth() / 2 - (imageWidth*colPerRow) / 2);
-                    currentImageView.setY(i * imageHeight + getHeight()/2 - (imageHeight*numberOfRow)/2);
+                    currentImageView.setX(j * imageWidth + getWidth() / 2 - (imageWidth * colPerRow) / 2);
+                    currentImageView.setY(i * imageHeight + getHeight() / 2 - (imageHeight * numberOfRow) / 2);
 
                     childIndex++;
                 }
 
             }
 
-
-
-
             while (childIndex < getChildCount()) {
-                if(getChildAt(childIndex) instanceof ImageView) {
+                if (getChildAt(childIndex) instanceof ImageView) {
                     getChildAt(childIndex).setVisibility(GONE);
                 }
                 childIndex++;
             }
 
             mFullImageWidth = imageWidth * colPerRow;
-//            if(zoomLevel > 0) {
-//                mLowerScaleFactor = (imagesByZoom.get(zoomLevel - 1).length * imageWidth)/(float) mFullImageWidth;
-//            } else {
-                mLowerScaleFactor = MIN_SCALE_FACTOR;
-//            }
-
-            if(zoomLevel < imagesByZoom.size() - 1) {
-                mHigherScaleFactor = (imagesByZoom.get(zoomLevel + 1)[0].length * imageWidth)/(float) mFullImageWidth;
+            mLowerScaleFactor = MIN_SCALE_FACTOR;
+            if (zoomLevel < provider.getMaxZoomLevel()) {
+                mHigherScaleFactor = (provider.getColCountForZoom(zoomLevel +1) * imageWidth) / (float) mFullImageWidth;
             } else {
                 mHigherScaleFactor = MAX_SCALE_FACTOR;
             }
 
-            Log.d("Scale","ScaleFActor : " + mLowerScaleFactor + " " + mHigherScaleFactor );
-
-
+            Log.d("Scale", "ScaleFActor : " + mLowerScaleFactor + " " + mHigherScaleFactor);
         }
         return mScaleFactor;
     }
 
-    private Bitmap getBitmapForCoordinateAndZoom(int x, int y, int zoom) {
-        //Trouver les coordonne du centre du parent dans l'image
-        // Trouver dans quelle portion cette cordonne se trouve (
-        Bitmap[][] images = imagesByZoom.get(zoom);
-        Bitmap[] centerRow = images[images.length / 2];
-        return centerRow[centerRow.length / 2];
-    }
+
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
@@ -199,7 +186,7 @@ public class ImageContainerLayout extends FrameLayout {
             mScaleDetector.onTouchEvent(ev);
             //Log.d("ImageAction", "Scale Event");
         } else {
-          // return handleMove(ev);
+            // return handleMove(ev);
         }
         return true;
     }
@@ -232,7 +219,7 @@ public class ImageContainerLayout extends FrameLayout {
                 }
                 return true;
             case MotionEvent.ACTION_MOVE:
-                if(getChildCount() == childOrigins.size()) {
+                if (getChildCount() == childOrigins.size()) {
                     for (int i = 0; i < getChildCount(); i++) {
                         View child = getChildAt(i);
                         PointF childOrigin = childOrigins.get(i);
@@ -248,7 +235,6 @@ public class ImageContainerLayout extends FrameLayout {
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
 
-
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
             mScaleFactor *= detector.getScaleFactor();
@@ -256,17 +242,19 @@ public class ImageContainerLayout extends FrameLayout {
             float pivotX, pivotY;
 //            pivotX = detector.getFocusX();
 //            pivotY = detector.getFocusY();
-            pivotX = getWidth()/2;
-            pivotY = getHeight()/2;
+            pivotX = getWidth() / 2;
+            pivotY = getHeight() / 2;
             // Don't let the object get too small or too large.
             mScaleFactor = Math.max(mLowerScaleFactor, Math.min(mScaleFactor, mHigherScaleFactor));
 
             if (mScaleFactor >= mHigherScaleFactor && mCurrentZoomLevel < mMaxZoomLevel) {
-             /*   mScaleFactor = */ displayAllImageForZoomLevel(++mCurrentZoomLevel);
+             /*   mScaleFactor = */
+                displayAllImageForZoomLevel(++mCurrentZoomLevel);
                 mScaleFactor = 1.f;
 
             } else if (mScaleFactor <= mLowerScaleFactor && mCurrentZoomLevel > 0) {
-                /*mScaleFactor = */displayAllImageForZoomLevel(--mCurrentZoomLevel);
+                /*mScaleFactor = */
+                displayAllImageForZoomLevel(--mCurrentZoomLevel);
                 mScaleFactor = mHigherScaleFactor;
             }
 
@@ -275,6 +263,7 @@ public class ImageContainerLayout extends FrameLayout {
             invalidate();
             return true;
         }
+
         private void scaleAllChildren(float pivotX, float pivotY) {
             for (int i = 0; i < getChildCount(); i++) {
                 View child = getChildAt(i);
@@ -289,43 +278,5 @@ public class ImageContainerLayout extends FrameLayout {
 
     }
 
-    public void populateWithDummy() {
 
-        Bitmap[][] imagesZoom0 = new Bitmap[1][1];
-        Bitmap initBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.timetravel_small_effect);
-        imagesZoom0[0][0] = initBitmap;
-
-        imagesByZoom.add(0, imagesZoom0);
-
-        int[] drawables = {
-                R.drawable.slice_0_0,
-                R.drawable.slice_0_1,
-                R.drawable.slice_0_2,
-                R.drawable.slice_0_3,
-                R.drawable.slice_1_0,
-                R.drawable.slice_1_1,
-                R.drawable.slice_1_2,
-                R.drawable.slice_1_3,
-                R.drawable.slice_2_0,
-                R.drawable.slice_2_1,
-                R.drawable.slice_2_2,
-                R.drawable.slice_2_3,
-        };
-
-
-        int colPerRow = 4;
-        int numberOfRow = 3;
-        Bitmap[][] imagesZoom1 = new Bitmap[numberOfRow][colPerRow];
-        int j = 0;
-        for (int i = 0; i < drawables.length; i++) {
-            if (i % colPerRow == 0 && i != 0) {
-                j++;
-            }
-            // Add eachBitmap to the
-            imagesZoom1[j][i % colPerRow] = BitmapFactory.decodeResource(getResources(), drawables[i]);
-        }
-
-        imagesByZoom.add(1, imagesZoom1);
-
-    }
 }

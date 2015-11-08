@@ -15,6 +15,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import insa.cloud.R;
+import insa.cloud.global.TestImageProvider;
+import insa.cloud.view.ImageContainerLayout;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -41,7 +43,7 @@ public class ImageViewerActivity extends AppCompatActivity {
 
 
     private View mControlsView;
-    private ViewGroup mImageContainer;
+    private ImageContainerLayout mImageContainer;
     private boolean mVisible;
 
     @Override
@@ -51,9 +53,10 @@ public class ImageViewerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_image_viewer);
 
         mVisible = true;
-        mControlsView = findViewById(R.id.fullscreen_content_controls);
+       // mControlsView = findViewById(R.id.fullscreen_content_controls);
 
-        mImageContainer = (ViewGroup) findViewById(R.id.image_container);
+        mImageContainer = (ImageContainerLayout) findViewById(R.id.image_container);
+        mImageContainer.setProvider(new TestImageProvider(this));
 
 
        // displayTestImage();
@@ -70,7 +73,7 @@ public class ImageViewerActivity extends AppCompatActivity {
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
-        findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+        //findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
     }
 
 
@@ -80,28 +83,6 @@ public class ImageViewerActivity extends AppCompatActivity {
         //displayTestImage();
     }
 
-    private void displayTestImage() {
-        final ImageView originalImageView = new ImageView(this);
-        Bitmap originalBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.timetravel_small);
-        originalImageView.setImageBitmap(originalBitmap);
-
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(originalBitmap.getWidth(), originalBitmap.getHeight());
-        originalImageView.setLayoutParams(params);
-
-        ViewTreeObserver viewTreeObserver = mImageContainer.getViewTreeObserver();
-        if (viewTreeObserver.isAlive()) {
-            viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                @Override
-                public void onGlobalLayout() {
-                    mImageContainer.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-
-                    originalImageView.setX(mImageContainer.getWidth() / 2f - originalImageView.getWidth() / 2f);
-                    originalImageView.setY(mImageContainer.getHeight() / 2f - originalImageView.getHeight() / 2f);
-                }
-            });
-        }
-        mImageContainer.addView(originalImageView);
-    }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
@@ -142,7 +123,7 @@ public class ImageViewerActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.hide();
         }
-        mControlsView.setVisibility(View.GONE);
+       // mControlsView.setVisibility(View.GONE);
         mVisible = false;
 
         // Schedule a runnable to remove the status and navigation bar after a delay
