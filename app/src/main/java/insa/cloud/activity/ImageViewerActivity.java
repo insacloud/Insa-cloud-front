@@ -1,38 +1,29 @@
-package insa.cloud.fragment;
-
+package insa.cloud.activity;
 
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBar;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.NetworkImageView;
-
-import java.util.Random;
+import android.view.ViewTreeObserver;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 import insa.cloud.R;
 import insa.cloud.global.NetworkImageProvider;
-import insa.cloud.global.VolleyController;
+import insa.cloud.global.TestImageProvider;
 import insa.cloud.view.ImageContainerLayout;
 
 /**
- * A simple {@link Fragment} subclass.
+ * An example full-screen activity that shows and hides the system UI (i.e.
+ * status bar and navigation/system bar) with user interaction.
  */
-public class EventMosaicFragment extends Fragment {
-    ImageLoader imageLoader = VolleyController.getInstance().getImageLoader();
-    private String testUrl = "http://lorempixel.com/100/90/?random=";
-    private View rootView;
-
-    public EventMosaicFragment() {
-        // Required empty public constructor
-    }
+public class ImageViewerActivity extends AppCompatActivity {
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -56,6 +47,54 @@ public class EventMosaicFragment extends Fragment {
     private ImageContainerLayout mImageContainer;
     private boolean mVisible;
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_image_viewer);
+
+        mVisible = true;
+       // mControlsView = findViewById(R.id.fullscreen_content_controls);
+
+        mImageContainer = (ImageContainerLayout) findViewById(R.id.image_container);
+        mImageContainer.setProvider(new NetworkImageProvider(this, "1"));
+        //mImageContainer.setProvider(new TestImageProvider(this));
+
+
+       // displayTestImage();
+
+
+        // Set up the user interaction to manually show or hide the system UI.
+        mImageContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                toggle();
+            }
+        });
+
+        // Upon interacting with UI controls, delay any scheduled hide()
+        // operations to prevent the jarring behavior of controls going away
+        // while interacting with the UI.
+        //findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+    }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        //displayTestImage();
+    }
+
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+
+        // Trigger the initial hide() shortly after the activity has been
+        // created, to briefly hint to the user that UI controls
+        // are available.
+        delayedHide(100);
+    }
 
     /**
      * Touch listener to use for in-layout UI controls to delay hiding the
@@ -82,11 +121,15 @@ public class EventMosaicFragment extends Fragment {
 
     private void hide() {
         // Hide UI first
-
-        // mControlsView.setVisibility(View.GONE);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.hide();
+        }
+       // mControlsView.setVisibility(View.GONE);
         mVisible = false;
 
         // Schedule a runnable to remove the status and navigation bar after a delay
+        mHideHandler.removeCallbacks(mShowPart2Runnable);
         mHideHandler.postDelayed(mHidePart2Runnable, UI_ANIMATION_DELAY);
     }
 
@@ -107,13 +150,7 @@ public class EventMosaicFragment extends Fragment {
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
         }
     };
-    private final Runnable mShowPart2Runnable = new Runnable() {
-        @Override
-        public void run() {
-            // Delayed display of UI elements
-            mControlsView.setVisibility(View.VISIBLE);
-        }
-    };
+
     @SuppressLint("InlinedApi")
     private void show() {
         // Show the system bar
@@ -126,7 +163,17 @@ public class EventMosaicFragment extends Fragment {
         mHideHandler.postDelayed(mShowPart2Runnable, UI_ANIMATION_DELAY);
     }
 
-    
+    private final Runnable mShowPart2Runnable = new Runnable() {
+        @Override
+        public void run() {
+            // Delayed display of UI elements
+            ActionBar actionBar = getSupportActionBar();
+            if (actionBar != null) {
+                actionBar.show();
+            }
+            mControlsView.setVisibility(View.VISIBLE);
+        }
+    };
 
     private final Handler mHideHandler = new Handler();
     private final Runnable mHideRunnable = new Runnable() {
@@ -144,42 +191,4 @@ public class EventMosaicFragment extends Fragment {
         mHideHandler.removeCallbacks(mHideRunnable);
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
     }
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-         rootView = inflater.inflate(R.layout.fragment_event_mosaic, container, false);
-
-        if (imageLoader == null)
-            imageLoader = VolleyController.getInstance().getImageLoader();
-
-
-        mVisible = true;
-        // mControlsView = findViewById(R.id.fullscreen_content_controls);
-
-        mImageContainer = (ImageContainerLayout) rootView.findViewById(R.id.image_container);
-        mImageContainer.setProvider(new NetworkImageProvider(getContext(), getActivity().getIntent().getStringExtra("eventID")));
-        //mImageContainer.setProvider(new TestImageProvider(this));
-
-
-        // displayTestImage();
-
-
-        // Set up the user interaction to manually show or hide the system UI.
-        mImageContainer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                toggle();
-            }
-        });
-
-        // Upon interacting with UI controls, delay any scheduled hide()
-        // operations to prevent the jarring behavior of controls going away
-        // while interacting with the UI.
-        //findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
-        return rootView;
-    }
-
-
-
 }
