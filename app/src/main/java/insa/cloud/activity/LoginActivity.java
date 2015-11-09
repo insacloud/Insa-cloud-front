@@ -32,13 +32,15 @@ import org.json.JSONObject;
 import java.util.Arrays;
 
 import insa.cloud.R;
+import insa.cloud.global.RequestCallback;
+import insa.cloud.global.RequestInterface;
+import insa.cloud.global.RequestVolley;
 import insa.cloud.global.SessionManager;
 import insa.cloud.global.Url;
 import insa.cloud.global.VolleyController;
 
 public class LoginActivity extends AppCompatActivity{
-
-    private static final String TAG = LoginActivity.class.getSimpleName();
+    private final String TAG =LoginActivity.class.getSimpleName();
     private Button btnLogin;
     private Button btnLinkToRegister;
     private Button btnSkip;
@@ -164,7 +166,6 @@ public class LoginActivity extends AppCompatActivity{
         }
         catch(Exception e)
         {
-
         }
     }
 
@@ -174,54 +175,39 @@ public class LoginActivity extends AppCompatActivity{
         pDialog.setMessage("Logging in ...");
         pDialog.show();
 
-        JSONObject jsonObj = new JSONObject();
-        jsonObj.put("email", email);
-        jsonObj.put("password", password);
-
-        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST ,
-                Url.Login, jsonObj, new Response.Listener<JSONObject>() {
-
+        MainActivity.request.login(email, password, new RequestCallback<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                if(pDialog!=null) {
-                    if (pDialog.isShowing())
-                        pDialog.dismiss();
+                    try {
+                        String token = response.getString("Token");
+                        if (!token.isEmpty()) {
+                            if (pDialog != null) {
+                                if (pDialog.isShowing())
+                                    pDialog.dismiss();
+                            }
+                            session.setLogin(true);
+                            session.setToken(token);
+
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
-
-                try {
-
-                    String token = response.getString("Token");
-                    session.setLogin(true);
-                    session.setToken(token);
-
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-            }
-        }, new Response.ErrorListener() {
-
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e(TAG, "Login Error: " + error.getMessage());
                 Toast.makeText(getApplicationContext(),
                         error.getMessage(), Toast.LENGTH_LONG).show();
-                if(pDialog!=null) {
+                if (pDialog != null) {
                     if (pDialog.isShowing())
                         pDialog.dismiss();
                 }
             }
-        }) {
-        };
-
-        // Adding request to request queue
-        VolleyController.getInstance().addToRequestQueue(jsonObjReq);
+        });
     }
-
 
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {

@@ -12,6 +12,8 @@ import com.facebook.login.LoginManager;
 
 
 import insa.cloud.R;
+import insa.cloud.global.RequestInterface;
+import insa.cloud.global.RequestVolley;
 import insa.cloud.global.SessionManager;
 
 public class MainActivity extends AppCompatActivity {
@@ -19,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
     private Button btnLogout;
     private Button btnEvents;
     private SessionManager session;
+    public static RequestInterface request = new RequestVolley();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

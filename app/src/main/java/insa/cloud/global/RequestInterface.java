@@ -5,9 +5,11 @@ package insa.cloud.global;
  */
 import android.location.Location;
 
-public interface RequestInterface {
-    public Event[] getEventList();
-    public Event[] getEventList(Location location);
+import org.json.JSONObject;
 
-    public Event getEvent(String id);
+public interface RequestInterface {
+    public void getEventList(final RequestCallback<Event[]> callback);
+    public void getEventList(Location location,final RequestCallback<Event[]> callback);
+    public void getEvent(String id,final RequestCallback<Event> callback);
+    public void login(String email,String password,final RequestCallback<JSONObject> callback);
 }
