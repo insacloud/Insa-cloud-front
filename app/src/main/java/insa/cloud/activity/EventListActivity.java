@@ -1,7 +1,6 @@
 package insa.cloud.activity;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -28,7 +27,7 @@ import insa.cloud.global.Event;
 
 
 public class EventListActivity extends Activity implements ConnectionCallbacks,OnConnectionFailedListener{
-    final ListView listView=(ListView) findViewById(R.id.eventList) ;
+    ListView listView;
     ImageButton addPhotoBtn;
     int selectedIndex=-1;
     GoogleApiClient mGoogleApiClient;
@@ -37,7 +36,8 @@ public class EventListActivity extends Activity implements ConnectionCallbacks,O
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event);
-         mGoogleApiClient = new GoogleApiClient.Builder(this)
+        listView=(ListView) findViewById(R.id.eventList);
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)

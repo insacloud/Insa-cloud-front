@@ -10,6 +10,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
+import com.google.android.gms.auth.api.Auth;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,11 +41,11 @@ public class RequestVolley implements  RequestInterface{
             locations.put("latitude", "" + location.getLatitude());
             locations.put("longitude", "" + location.getLongitude());
         }
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, Url.Events, new JSONObject(locations), new Response.Listener<JSONObject>() {
+        JsonObjectRequest request = new AuthentifiedJsonObjectRequest(Request.Method.GET, Url.Events, new JSONObject(locations), new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) {
                 try {
-                    JSONArray array = jsonObject.getJSONArray("events");
+                    JSONArray array = jsonObject.getJSONArray("results");
                     int arrayLength = array.length();
                     Event[] events = new Event[arrayLength];
                     for (int i = 0; i < arrayLength; i++) {
@@ -62,11 +63,12 @@ public class RequestVolley implements  RequestInterface{
                 callback.onErrorResponse(volleyError);
             }
         });
+        VolleyController.getInstance().getRequestQueue().add(request);
     }
 
     @Override
     public void getEvent(String id,final RequestCallback<Event> callback) {
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, Url.Events + id + "/", null, new Response.Listener<JSONObject>() {
+        JsonObjectRequest request = new AuthentifiedJsonObjectRequest(Request.Method.GET, Url.Events + id + "/", null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) {
                 try {

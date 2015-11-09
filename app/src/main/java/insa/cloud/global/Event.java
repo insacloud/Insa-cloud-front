@@ -9,7 +9,7 @@ import java.util.Date;
  * Created by Paul on 20/10/2015.
  */
 public class Event {
-    private static final SimpleDateFormat formatter = new SimpleDateFormat("dd/MMM/yyyy HH:mm");
+    private static final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
     private String id;
     private String type;
     private String title;
@@ -37,15 +37,15 @@ public class Event {
     }
     public Event(JSONObject jsonObject) throws JSONException, ParseException {
         this(jsonObject.get("id").toString(),
-                jsonObject.get("type").toString(),
+                jsonObject.get("category").toString(),
                 jsonObject.get("title").toString(),
                 jsonObject.get("location").toString(),
-                formatter.parse(jsonObject.get("startDate").toString()),
-                formatter.parse((String)jsonObject.get("endDate").toString()),
+                formatter.parse(jsonObject.get("date_start").toString()),
+                formatter.parse((String)jsonObject.get("date_end").toString()),
                 jsonObject.get("venue").toString(),
                 (double) jsonObject.get("longitude"),
                 (double) jsonObject.get("latitude"),
-                jsonObject.get("idPoster").toString());
+                jsonObject.get("poster").toString());
     }
 
     public Date getStartDate() {
