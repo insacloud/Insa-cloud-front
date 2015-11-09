@@ -15,6 +15,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import insa.cloud.R;
+import insa.cloud.global.NetworkImageProvider;
 import insa.cloud.global.TestImageProvider;
 import insa.cloud.view.ImageContainerLayout;
 
@@ -56,7 +57,8 @@ public class ImageViewerActivity extends AppCompatActivity {
        // mControlsView = findViewById(R.id.fullscreen_content_controls);
 
         mImageContainer = (ImageContainerLayout) findViewById(R.id.image_container);
-        mImageContainer.setProvider(new TestImageProvider(this));
+        mImageContainer.setProvider(new NetworkImageProvider(this, 1));
+        //mImageContainer.setProvider(new TestImageProvider(this));
 
 
        // displayTestImage();
