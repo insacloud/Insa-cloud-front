@@ -29,7 +29,7 @@ public class NetworkImageProvider implements ImageProvider {
     private static final String TAG = NetworkImageProvider.class.getName();
 
 
-    private final int mEventId;
+    private final String mEventId;
     private final Context mContext;
     HashMap<Long, String> imagesUrl = new HashMap<>();
 
@@ -38,10 +38,10 @@ public class NetworkImageProvider implements ImageProvider {
     private String baseUrl;
 
 
-    public NetworkImageProvider(Context context, int eventId) {
+    public NetworkImageProvider(Context context, String eventId) {
         mEventId = eventId;
         mContext = context;
-        baseUrl = String.format(SERVER + "/api/mosaics/get_image?event=%d", mEventId);
+        baseUrl = (SERVER + "/api/mosaics/get_image?event="+ mEventId);
     }
 
     @Override

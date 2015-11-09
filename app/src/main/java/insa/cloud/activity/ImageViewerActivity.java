@@ -57,7 +57,7 @@ public class ImageViewerActivity extends AppCompatActivity {
        // mControlsView = findViewById(R.id.fullscreen_content_controls);
 
         mImageContainer = (ImageContainerLayout) findViewById(R.id.image_container);
-        mImageContainer.setProvider(new NetworkImageProvider(this, 1));
+        mImageContainer.setProvider(new NetworkImageProvider(this, "1"));
         //mImageContainer.setProvider(new TestImageProvider(this));
 
 
