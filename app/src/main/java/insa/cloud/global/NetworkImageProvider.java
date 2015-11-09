@@ -7,11 +7,18 @@ import android.widget.ImageView;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import insa.cloud.network.AuthJsonRequest;
 import insa.cloud.network.AuthStringRequest;
 
 /**
@@ -24,15 +31,17 @@ public class NetworkImageProvider implements ImageProvider {
 
     private final int mEventId;
     private final Context mContext;
-    ArrayList<ArrayList<String>> imagesUrl = new ArrayList<>();
+    HashMap<Long, String> imagesUrl = new HashMap<>();
 
     public static final int TILL_SIZE = 512;
     public static final String SERVER = "http://insacloud.thoretton.com";
+    private String baseUrl;
 
 
     public NetworkImageProvider(Context context, int eventId) {
         mEventId = eventId;
         mContext = context;
+        baseUrl = String.format(SERVER + "/api/mosaics/get_image?event=%d", mEventId);
     }
 
     @Override
@@ -62,30 +71,67 @@ public class NetworkImageProvider implements ImageProvider {
 
     @Override
     public void fillImageViewForCoordinate(final ImageView imageView, int zoom, int row, int col) {
-
-        String URL = String.format(SERVER + "/api/mosaics/get_image?level=%d&event=%d", zoom, mEventId);
-        if(zoom > 0 ) URL = String.format(URL+"&row=%d&column=%d",row, col);
-
-        StringRequest urlRequest = new AuthStringRequest(Request.Method.GET, URL,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String imageUrl) {
-                        Picasso.with(mContext).load(imageUrl).into(imageView);
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-                        Log.d(TAG, "onErrorResponse() returned: " + volleyError.getMessage());
-                    }
+        final long key = hashCoordinate(zoom, col, row);
+        if(imagesUrl.containsKey(key)) {
+            Picasso.with(mContext).load(imagesUrl.get(key)).into(imageView);
+        } else {
+            loadUrlForZoom(zoom, new LoadedCallBack() {
+                @Override
+                public void onLoaded() {
+                    Picasso.with(mContext).load(imagesUrl.get(key)).into(imageView);
                 }
-        );
-        VolleyController.getInstance().addToRequestQueue(urlRequest);
+            });
+        }
 
     }
 
     @Override
     public void loadMetaData(LoadedCallBack callBack) {
-        callBack.onLoaded();
+            loadUrlForZoom(0, callBack);
+    }
+
+    private void loadUrlForZoom(final int zoomlevel, final LoadedCallBack callBack) {
+        if(zoomlevel < 0 || zoomlevel > getMaxZoomLevel()) return;
+        String url = String.format(baseUrl + "&level=%d", zoomlevel);
+        VolleyController.getInstance().addToRequestQueue(new AuthJsonRequest(
+                Request.Method.GET,
+                url,
+                null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject jsonObject) {
+                        try {
+                            JSONArray results = jsonObject.getJSONArray("results");
+                            for (int i = 0; i < results.length(); i++) {
+                                JSONObject image = results.getJSONObject(i);
+                                int row, col;
+
+                                row = image.isNull("row") ? 0 : image.getInt("row");
+                                col = image.isNull("column") ? 0 : image.getInt("column");
+                                imagesUrl.put(hashCoordinate(
+                                                zoomlevel,
+                                                row,
+                                                col),
+                                        image.getString("image")
+                                );
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        if(callBack != null) callBack.onLoaded();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+
+                    }
+                }
+        ));
+    }
+
+
+    private long hashCoordinate(int zoom, int col, int row) {
+        return (col << 16) | row << 8 | zoom;
     }
 }

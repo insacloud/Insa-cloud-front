@@ -1,6 +1,7 @@
 package insa.cloud.view;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.PointF;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -56,9 +57,7 @@ public class ImageContainerLayout extends FrameLayout {
 
     private void init(Context context) {
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
-
-        displayAllImageForZoomLevel(0);
-        resizeChildren();
+        displayInitImage();
     }
 
     public void setProvider(ImageProvider provider) {
@@ -71,7 +70,7 @@ public class ImageContainerLayout extends FrameLayout {
         });
     }
 
-    private void resizeChildren() {
+    private void displayInitImage() {
         ViewTreeObserver viewTreeObserver = getViewTreeObserver();
         if (viewTreeObserver.isAlive()) {
             viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -79,11 +78,7 @@ public class ImageContainerLayout extends FrameLayout {
                 public void onGlobalLayout() {
                     getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
-                    for (int i = 0; i < getChildCount(); i++) {
-                        View child = getChildAt(i);
-                        child.setX(child.getX() + getWidth() / 2f);
-                        child.setY(child.getY() + getHeight() / 2f);
-                    }
+                    displayAllImageForZoomLevel(0);
                 }
             });
         }
@@ -186,7 +181,7 @@ public class ImageContainerLayout extends FrameLayout {
             mScaleDetector.onTouchEvent(ev);
             //Log.d("ImageAction", "Scale Event");
         } else {
-            // return handleMove(ev);
+             return handleMove(ev);
         }
         return true;
     }
