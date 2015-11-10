@@ -75,7 +75,7 @@ public class LoginActivity extends AppCompatActivity{
             @Override
             public void onSuccess(LoginResult loginResult) {
                 session.setLogin(true);
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                Intent intent = new Intent(LoginActivity.this, EventListActivity.class);
                 startActivity(intent);
                 finish();
             }
@@ -143,7 +143,7 @@ public class LoginActivity extends AppCompatActivity{
         btnSkip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(getApplicationContext(), EventDetailsActivity.class);
+                Intent i = new Intent(getApplicationContext(), EventListActivity.class);
                 startActivity(i);
                 finish();
             }
@@ -154,7 +154,7 @@ public class LoginActivity extends AppCompatActivity{
 
 
         if (session.isLoggedIn()) {
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            Intent intent = new Intent(LoginActivity.this, EventListActivity.class);
             startActivity(intent);
             finish();
             return;

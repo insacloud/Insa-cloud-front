@@ -1,6 +1,7 @@
 package insa.cloud.fragment;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -8,6 +9,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,30 +17,35 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import insa.cloud.R;
 import insa.cloud.global.GetImageThumbnail;
-import insa.cloud.global.PhotoMultipartRequest;
+import insa.cloud.global.MultipartRequest;
 import insa.cloud.global.Url;
 import insa.cloud.global.VolleyController;
 
 public class EventSendPhotoFragment extends Fragment {
+    private static final int CAMERA_IMAGE_REQUEST = 1;
     private static String root = null;
     private static String imageFolderPath = null;
-    private String imageName = null;
     private static Uri fileUri = null;
-    private static final int CAMERA_IMAGE_REQUEST=1;
+    private String imageName = null;
     private ImageView imageView;
     private Button buttonTakePhoto;
     private Button buttonUpload;
     private String pathImage = null;
-
+    private boolean captured = false;
+    private ProgressDialog pDialog;
     public EventSendPhotoFragment() {
         // Required empty public constructor
     }
@@ -78,7 +85,7 @@ public class EventSendPhotoFragment extends Fragment {
                 uploadPhoto();
             }
         });
-
+        captured = false;
         return rootView;
     }
 
@@ -138,12 +145,13 @@ public class EventSendPhotoFragment extends Fragment {
 
 
                     imageView.setImageBitmap(bitmap);
-
+                    captured = true;
                     break;
 
                 default:
                     Toast.makeText(getActivity(), "Something went wrong...",
                             Toast.LENGTH_SHORT).show();
+                    captured = false;
                     break;
             }
 
@@ -165,30 +173,47 @@ public class EventSendPhotoFragment extends Fragment {
     }
 
     public void uploadPhoto(){
-        try {
-            File image = new File((String)imageView.getTag());
-            String token = "";
+        if (!captured) {
+            Toast.makeText(getActivity().getApplicationContext(), "Please ttke a picture",
+                    Toast.LENGTH_LONG).show();
+        } else {
+            try {
+                pDialog = new ProgressDialog(getActivity());
+                pDialog.setMessage("Uploading...");
+                pDialog.show();
+                File image = new File((String) imageView.getTag());
 
-            PhotoMultipartRequest imageUploadReq = new PhotoMultipartRequest(0, Url.UploadImage, new Response.ErrorListener() {
+                Map<String, String> requestParams = new HashMap<String, String>();
+                requestParams.put("event", getActivity().getIntent().getStringExtra("eventID"));
 
-                @Override
-                public void onErrorResponse(VolleyError volleyError) {
+                MultipartRequest imageUploadReq = new MultipartRequest(Url.UploadImage, new Response.ErrorListener() {
 
-                }
-            }, new Response.Listener<String>() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        pDialog.dismiss();
+                        VolleyLog.d("TAG", "Error had occured " + volleyError.getCause());
+                        Log.d("TAG", "inside Error");
+                        Toast.makeText(getActivity().getApplicationContext(), "Error had occured",
+                                Toast.LENGTH_SHORT).show();
 
-                @Override
-                public void onResponse(String s) {
+                    }
+                }, new Response.Listener<String>() {
 
-                }
-            }, image, null, token);
+                    @Override
+                    public void onResponse(String s) {
+                        pDialog.dismiss();
+                        Toast.makeText(getActivity().getApplicationContext(), "Success",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }, image, requestParams);
+                imageUploadReq.setRetryPolicy(new DefaultRetryPolicy(
+                        60000,
+                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                VolleyController.getInstance().addToRequestQueue(imageUploadReq);
+            } catch (Exception e) {
 
-            VolleyController.getInstance().addToRequestQueue(imageUploadReq);
+            }
         }
-        catch(Exception e){
-
-        }
-
-        // Adding request to request queue
     }
 }

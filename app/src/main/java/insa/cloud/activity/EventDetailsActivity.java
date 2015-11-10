@@ -2,6 +2,7 @@ package insa.cloud.activity;
 
 import java.util.Locale;
 
+import android.content.Intent;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
@@ -18,10 +19,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.facebook.login.LoginManager;
+
 import insa.cloud.R;
 import insa.cloud.fragment.EventInformationFragment;
 import insa.cloud.fragment.EventMosaicFragment;
 import insa.cloud.fragment.EventSendPhotoFragment;
+import insa.cloud.global.SessionManager;
 
 public class EventDetailsActivity extends AppCompatActivity implements ActionBar.TabListener {
 
@@ -41,6 +45,7 @@ public class EventDetailsActivity extends AppCompatActivity implements ActionBar
     ViewPager mViewPager;
     private Toolbar mToolbar;
     private TabLayout tabs;
+    private SessionManager session;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +96,23 @@ public class EventDetailsActivity extends AppCompatActivity implements ActionBar
         }
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            session = new SessionManager(getApplicationContext());
+
+            if (session.isLoggedIn()) {
+                session.setLogin(false);
+                try {
+                    LoginManager.getInstance().logOut();
+                } catch (Exception e) {
+
+                }
+                Intent intent = new Intent(EventDetailsActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+            } else {
+                Intent intent = new Intent(EventDetailsActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+            }
             return true;
         }
 
@@ -110,6 +132,39 @@ public class EventDetailsActivity extends AppCompatActivity implements ActionBar
 
     @Override
     public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+    }
+
+    /**
+     * A placeholder fragment containing a simple view.
+     */
+    public static class PlaceholderFragment extends Fragment {
+        /**
+         * The fragment argument representing the section number for this
+         * fragment.
+         */
+        private static final String ARG_SECTION_NUMBER = "section_number";
+
+        public PlaceholderFragment() {
+        }
+
+        /**
+         * Returns a new instance of this fragment for the given section
+         * number.
+         */
+        public static PlaceholderFragment newInstance(int sectionNumber) {
+            PlaceholderFragment fragment = new PlaceholderFragment();
+            Bundle args = new Bundle();
+            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+            fragment.setArguments(args);
+            return fragment;
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.fragment_event_details, container, false);
+            return rootView;
+        }
     }
 
     /**
@@ -156,39 +211,6 @@ public class EventDetailsActivity extends AppCompatActivity implements ActionBar
                     return getString(R.string.event_details_3rd_page).toUpperCase(l);
             }
             return null;
-        }
-    }
-
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_event_details, container, false);
-            return rootView;
         }
     }
 
