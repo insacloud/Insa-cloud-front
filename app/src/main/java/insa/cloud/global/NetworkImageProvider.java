@@ -27,14 +27,14 @@ import insa.cloud.network.AuthStringRequest;
 public class NetworkImageProvider implements ImageProvider {
 
     private static final String TAG = NetworkImageProvider.class.getName();
-
+    private static final int MAX_ZOOM_LEVEL = 1;
+    public static final int TILL_SIZE = 512;
+    public static final String SERVER = "http://insacloud.thoretton.com";
 
     private final String mEventId;
     private final Context mContext;
     HashMap<Long, String> imagesUrl = new HashMap<>();
 
-    public static final int TILL_SIZE = 512;
-    public static final String SERVER = "http://insacloud.thoretton.com";
     private String baseUrl;
 
 
@@ -46,17 +46,17 @@ public class NetworkImageProvider implements ImageProvider {
 
     @Override
     public int getMaxZoomLevel() {
-        return 1;
+        return MAX_ZOOM_LEVEL;
     }
 
     @Override
     public int getRowCountForZoom(int zoom) {
-        return zoom > 0 ? 4 : 1;
+        return Double.valueOf(Math.pow(4, zoom)).intValue();
     }
 
     @Override
     public int getColCountForZoom(int zoom) {
-        return zoom > 0 ? 4 : 1;
+        return Double.valueOf(Math.pow(4, zoom)).intValue();
     }
 
     @Override

@@ -3,8 +3,10 @@ package insa.cloud.view;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PointF;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -34,9 +36,12 @@ public class ImageContainerLayout extends FrameLayout {
     private ScaleGestureDetector mScaleDetector;
     private float mScaleFactor = 1.f;
     private int mCurrentZoomLevel = 0;
+    private boolean canMove = false;
+    private GestureDetector mGestureDetector;
 
     PointF downPoint = new PointF(0, 0);
     ArrayList<PointF> childOrigins;
+    private MyGestureListener mGestureListener;
 
 
     public ImageContainerLayout(Context context) {
@@ -58,10 +63,15 @@ public class ImageContainerLayout extends FrameLayout {
     private void init(Context context) {
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
         displayInitImage();
+
+        mGestureListener = new MyGestureListener();
+
+        mGestureDetector = new GestureDetector(context, mGestureListener);
     }
 
     public void setProvider(ImageProvider provider) {
         this.provider = provider;
+        mMaxZoomLevel = provider.getMaxZoomLevel();
         provider.loadMetaData(new ImageProvider.LoadedCallBack() {
             @Override
             public void onLoaded() {
@@ -176,14 +186,19 @@ public class ImageContainerLayout extends FrameLayout {
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-        // Let the ScaleGestureDetector inspect all events.
-        if (ev.getPointerCount() > 1) {
-            mScaleDetector.onTouchEvent(ev);
-            //Log.d("ImageAction", "Scale Event");
+
+        if(!this.mGestureDetector.onTouchEvent(ev)) {
+            // Let the ScaleGestureDetector inspect all events.
+            if (ev.getPointerCount() > 1) {
+                canMove = false;
+                mScaleDetector.onTouchEvent(ev);
+                return true;
+            } else {
+                return handleMove(ev);
+            }
         } else {
-             return handleMove(ev);
+            return true;
         }
-        return true;
     }
 
 
@@ -191,6 +206,7 @@ public class ImageContainerLayout extends FrameLayout {
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 //Log.d("ImageAction", "Down Event");
+                canMove = true;
                 if (childOrigins == null) {
                     childOrigins = new ArrayList<>(getChildCount());
                 } else {
@@ -214,7 +230,7 @@ public class ImageContainerLayout extends FrameLayout {
                 }
                 return true;
             case MotionEvent.ACTION_MOVE:
-                if (getChildCount() == childOrigins.size()) {
+                if (canMove && getChildCount() == childOrigins.size()) {
                     for (int i = 0; i < getChildCount(); i++) {
                         View child = getChildAt(i);
                         PointF childOrigin = childOrigins.get(i);
@@ -224,6 +240,9 @@ public class ImageContainerLayout extends FrameLayout {
                     return true;
                 }
                 return false;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                canMove = false;
         }
         return false;
     }
@@ -234,6 +253,11 @@ public class ImageContainerLayout extends FrameLayout {
         public boolean onScale(ScaleGestureDetector detector) {
             mScaleFactor *= detector.getScaleFactor();
 
+            scaleEvent();
+            return true;
+        }
+
+        private void scaleEvent() {
             float pivotX, pivotY;
 //            pivotX = detector.getFocusX();
 //            pivotY = detector.getFocusY();
@@ -256,7 +280,6 @@ public class ImageContainerLayout extends FrameLayout {
             scaleAllChildren(pivotX, pivotY);
 
             invalidate();
-            return true;
         }
 
         private void scaleAllChildren(float pivotX, float pivotY) {
@@ -271,6 +294,14 @@ public class ImageContainerLayout extends FrameLayout {
             }
         }
 
+    }
+
+    class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+
+            return true;
+        }
     }
 
 

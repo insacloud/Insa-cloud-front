@@ -1,112 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:background="@color/coca_cola_dim"
-    android:orientation="vertical"
-    android:padding="10dp" >
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/libele_register"
-        android:layout_width="fill_parent"
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/concert"/>
+
+    <Button
+        android:id="@+id/btnSkip"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/btn_login"
-        android:textStyle="italic|bold"
-        android:textSize="30sp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="5dp"
+        android:background="@null"
+        android:text="@string/btn_skip"
+        android:textAllCaps="false"
         android:textColor="@color/white"
-        android:gravity="center"
-        android:layout_marginBottom="60dp"
-        android:layout_marginTop="50dp"/>
+        android:textSize="15sp" />
 
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        android:layout_height="fill_parent"
         android:orientation="vertical"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp" >
+        android:padding="10dp">
 
-        <EditText
-            android:id="@+id/email"
+
+        <TextView
+            android:id="@+id/libele_register"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
-            android:background="@color/white"
-            android:hint="@string/hint_email"
-            android:inputType="textEmailAddress"
-            android:padding="5dp"
-            android:singleLine="true"
-            android:textColor="@color/input_login"
-            android:textColorHint="@color/input_login_hint" />
-
-        <EditText
-            android:id="@+id/password"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
-            android:background="@color/white"
-            android:hint="@string/hint_password"
-            android:inputType="textPassword"
-            android:padding="5dp"
-            android:singleLine="true"
-            android:textColor="@color/input_login"
-            android:textColorHint="@color/input_login_hint" />
-
-        <!-- Login Button -->
-
-        <Button
-            android:id="@+id/btnLogin"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dip"
-            android:background="@color/btn_login_bg"
+            android:layout_marginBottom="60dp"
+            android:layout_marginTop="50dp"
+            android:gravity="center"
             android:text="@string/btn_login"
-            android:textColor="@color/colorPrimary" />
-
-        <!-- Link to Login Screen -->
-
-        <com.facebook.login.widget.LoginButton
-            xmlns:fb="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/login_button_facebook"
-            android:layout_width="fill_parent"
-            android:layout_marginTop="10dip"
-            android:layout_height="wrap_content"
-            fb:login_text="@string/login_facebook"
-            android:layout_centerInParent="true"
-            />
-
-        <Button
-            android:id="@+id/btnLinkToRegisterScreen"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="40dip"
-            android:background="@null"
-            android:text="@string/btn_link_to_register"
-            android:textAllCaps="false"
             android:textColor="@color/white"
-            android:textSize="15dp" />
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp">
+
+            <EditText
+                android:id="@+id/email"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:background="@color/white"
+                android:hint="@string/hint_email"
+                android:inputType="textEmailAddress"
+                android:padding="5dp"
+                android:singleLine="true"
+                android:textColor="@color/input_login"
+                android:textColorHint="@color/input_login_hint" />
+
+            <EditText
+                android:id="@+id/password"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:background="@color/white"
+                android:hint="@string/hint_password"
+                android:inputType="textPassword"
+                android:padding="5dp"
+                android:singleLine="true"
+                android:textColor="@color/input_login"
+                android:textColorHint="@color/input_login_hint" />
+
+            <!-- Login Button -->
+
+            <Button
+                android:id="@+id/btnLogin"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dip"
+                android:background="@color/btn_login_bg"
+                android:text="@string/btn_login"
+                android:textColor="@color/colorPrimary" />
+
+            <!-- Link to Login Screen -->
+
+            <com.facebook.login.widget.LoginButton xmlns:fb="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/login_button_facebook"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_marginTop="10dip"
+                fb:login_text="@string/login_facebook" />
+
+            <Button
+                android:id="@+id/btnLinkToRegisterScreen"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dip"
+                android:background="#d61d1d1d"
+                android:text="@string/btn_link_to_register"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="15dp" />
+        </LinearLayout>
+
     </LinearLayout>
 
-    <RelativeLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:layout_marginTop="40dp">
-
-        <Button
-            android:id="@+id/btnSkip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="60dip"
-            android:background="@null"
-            android:text="@string/btn_skip"
-            android:textAllCaps="false"
-            android:textColor="@color/white"
-            android:textSize="15sp"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"/>
-
-    </RelativeLayout>
-
-</LinearLayout>
+</RelativeLayout>

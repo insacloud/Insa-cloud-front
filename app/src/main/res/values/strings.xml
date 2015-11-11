@@ -11,7 +11,7 @@
     <string name="hint_email">Email</string>
     <string name="hint_password">Password</string>
     <string name="btn_link_to_register">Register Here</string>
-    <string name="btn_skip">Skip...</string>
+    <string name="btn_skip">Skip</string>
     <string name="btn_register">Register</string>
     <string name="btn_link_to_login">Login Instead</string>
     <string name="register_activity">Register</string>
