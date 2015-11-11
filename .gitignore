@@ -1,10 +1,5 @@
-
-*.iml
-Thumbs.db
-
 /.idea
-
-
+*.iml
 # Built application files
 *.apk
 *.ap_
@@ -19,7 +14,6 @@ Thumbs.db
 bin/
 gen/
 
-.idea/
 # Gradle files
 .gradle/
 build/
@@ -33,13 +27,5 @@ proguard/
 
 # Log Files
 *.log
-
-
-. i d e a 
-.idea/modules.xml
-.idea/gradle.xml
-
-
 Thumbs.db
 */Thumbs.db
-
