@@ -39,13 +39,13 @@ public class EventSendPhotoFragment extends Fragment {
     private static String root = null;
     private static String imageFolderPath = null;
     private static Uri fileUri = null;
-    private String imageName = null;
     private ImageView imageView;
-    private Button buttonTakePhoto;
     private Button buttonUpload;
     private String pathImage = null;
     private boolean captured = false;
     private ProgressDialog pDialog;
+
+
     public EventSendPhotoFragment() {
         // Required empty public constructor
     }
@@ -62,8 +62,8 @@ public class EventSendPhotoFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_event_send_photo, container, false);
 
         imageView = (ImageView) rootView.findViewById(R.id.captured);
-        buttonTakePhoto = (Button)rootView.findViewById(R.id.buttonTakePhoto);
-        buttonUpload = (Button)rootView.findViewById(R.id.buttonUpload);
+        Button buttonTakePhoto = (Button) rootView.findViewById(R.id.buttonTakePhoto);
+        buttonUpload = (Button) rootView.findViewById(R.id.buttonUpload);
 
         buttonTakePhoto.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -85,6 +85,7 @@ public class EventSendPhotoFragment extends Fragment {
                 uploadPhoto();
             }
         });
+        buttonUpload.setEnabled(false);
         captured = false;
         return rootView;
     }
@@ -100,7 +101,7 @@ public class EventSendPhotoFragment extends Fragment {
         imagesFolder.mkdirs();
 
         // Generating file name
-        imageName = "image.png";
+        String imageName = "image.png";
 
         // Creating image here
 
@@ -120,6 +121,7 @@ public class EventSendPhotoFragment extends Fragment {
                 CAMERA_IMAGE_REQUEST);
 
     }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -142,10 +144,9 @@ public class EventSendPhotoFragment extends Fragment {
                     }
 
                     // Setting image image icon on the imageview
-
-
                     imageView.setImageBitmap(bitmap);
                     captured = true;
+                    buttonUpload.setEnabled(true);
                     break;
 
                 default:
@@ -172,11 +173,8 @@ public class EventSendPhotoFragment extends Fragment {
         }
     }
 
-    public void uploadPhoto(){
-        if (!captured) {
-            Toast.makeText(getActivity().getApplicationContext(), "Please ttke a picture",
-                    Toast.LENGTH_LONG).show();
-        } else {
+    public void uploadPhoto() {
+        if (captured) {
             try {
                 pDialog = new ProgressDialog(getActivity());
                 pDialog.setMessage("Uploading...");
