@@ -28,5 +28,7 @@
     <string name="event_details_2nd_page">Event</string>
     <string name="event_details_3rd_page">Photo</string>
     <string name="title_activity_image_viewer">ImageViewer</string>
+    <string name="select_event">Choisissez un évènement</string>
+    <string name="event">Evènement</string>
 
 </resources>

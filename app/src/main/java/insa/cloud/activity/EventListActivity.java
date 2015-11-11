@@ -2,34 +2,29 @@ package insa.cloud.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
 import android.widget.ListView;
-
-import android.widget.Toast;
-import android.location.Location;
 
 import com.android.volley.VolleyError;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
-
 import com.google.android.gms.location.LocationServices;
+
 import insa.cloud.R;
-import insa.cloud.global.RequestCallback;
-import insa.cloud.global.RequestInterface;
-import insa.cloud.global.RequestMock;
+import insa.cloud.adapter.EventAdapter;
 import insa.cloud.global.Event;
+import insa.cloud.global.RequestCallback;
 
 
-public class EventListActivity extends Activity implements ConnectionCallbacks,OnConnectionFailedListener{
+public class EventListActivity extends AppCompatActivity implements ConnectionCallbacks,OnConnectionFailedListener{
     ListView listView;
-    ImageButton addPhotoBtn;
-    int selectedIndex=-1;
     GoogleApiClient mGoogleApiClient;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +38,10 @@ public class EventListActivity extends Activity implements ConnectionCallbacks,O
                 .addApi(LocationServices.API)
                 .build();
 
-        addPhotoBtn = (ImageButton) findViewById(R.id.addPhotoBtn);
+
+        if(getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(R.string.select_event);
+        }
         listView.setSelector(R.drawable.bg_key);
 
         // ListView Item Click Listener
@@ -53,25 +51,15 @@ public class EventListActivity extends Activity implements ConnectionCallbacks,O
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
                 view.setSelected(true);
-                selectedIndex=position;
+                Event selectedEvent = (Event) listView.getItemAtPosition(position);
+                String eventId = selectedEvent.getId();
+                Intent intent = new Intent(EventListActivity.this, EventDetailsActivity.class);
+                intent.putExtra("eventID", eventId);
+                intent.putExtra("eventTitle", selectedEvent.getTitle());
+                intent.putExtra("position", position);
+                startActivity(intent);
             }
         });
-
-        addPhotoBtn.setOnClickListener(new  View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String alertText="Please, select an event";
-                if (selectedIndex>=0 && selectedIndex<listView.getCount()) {
-                    Event selectedEvent = (Event) listView.getItemAtPosition(selectedIndex);
-                    String id = selectedEvent.getId();
-                    Intent intent = new Intent(EventListActivity.this, EventDetailsActivity.class);
-                    intent.putExtra("eventID",id);
-                    startActivity(intent);
-                    }
-                }
-
-        });
-
     }
 
     @Override
@@ -98,7 +86,7 @@ public class EventListActivity extends Activity implements ConnectionCallbacks,O
 
         @Override
         public void onResponse(Event[] events) {
-            ArrayAdapter<Event> adapter = new ArrayAdapter<Event>(EventListActivity.this,android.R.layout.simple_list_item_1, events);
+            ArrayAdapter<Event> adapter = new EventAdapter(EventListActivity.this,R.layout.event_list_elem, R.id.event_detail_title, events);
             listView.setAdapter(adapter);
         }
 

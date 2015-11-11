@@ -1,10 +1,13 @@
 package insa.cloud.global;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+
 /**
  * Created by Paul on 20/10/2015.
  */
@@ -20,13 +23,15 @@ public class Event {
     private double longitude;
     private double latitude;
     private String idPoster;
-    public Event(String id,String title){
-        this(id,null,title,null,null,null,null,0,0,null);
+
+    public Event(String id, String title) {
+        this(id, null, title, null, null, null, null, 0, 0, null);
     }
+
     public Event(String id, String type, String title, String location, Date startDate, Date endDate, String venue, double longitude, double latitude, String idPoster) {
         this.id = id;
         this.type = type;
-        this.title = title;
+        this.title = title.substring(0, Math.min(20, title.length()));
         this.location = location;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -35,17 +40,41 @@ public class Event {
         this.latitude = latitude;
         this.idPoster = idPoster;
     }
-    public Event(JSONObject jsonObject) throws JSONException, ParseException {
-        this(jsonObject.get("id").toString(),
-                jsonObject.get("category").toString(),
-                jsonObject.get("title").toString(),
-                jsonObject.get("location").toString(),
-                formatter.parse(jsonObject.get("date_start").toString()),
-                formatter.parse((String)jsonObject.get("date_end").toString()),
-                jsonObject.get("venue").toString(),
-                (double) jsonObject.get("longitude"),
-                (double) jsonObject.get("latitude"),
-                jsonObject.get("poster").toString());
+
+    public static Event fromJson(JSONObject jsonObject) {
+        String startDateString = jsonObject.optString("date_start", "2015-11-24T00:00:00Z");
+        String endDateString = jsonObject.optString("date_end", "2015-11-24T00:00:00Z");
+
+        Date startDate, endDate;
+
+        try {
+            if ("null".equals(startDateString)) {
+                startDate = formatter.parse("2015-11-24T00:00:00Z");
+            } else {
+                startDate = formatter.parse(startDateString);
+            }
+
+            if ("null".equals(endDateString)) {
+                endDate = formatter.parse("2015-11-24T00:00:00Z");
+            } else {
+                endDate = formatter.parse(endDateString);
+            }
+        } catch (ParseException ex) {
+            ex.printStackTrace();
+            startDate = Calendar.getInstance().getTime();
+            endDate = Calendar.getInstance().getTime();
+        }
+
+        return new Event(jsonObject.optString("id"),
+                jsonObject.optString("category"),
+                jsonObject.optString("title"),
+                jsonObject.optString("location"),
+                startDate,
+                endDate,
+                jsonObject.optString("venue"),
+                jsonObject.optDouble("longitude", 0.),
+                jsonObject.optDouble("latitude", 0.),
+                jsonObject.optString("poster"));
     }
 
     public Date getStartDate() {
@@ -87,6 +116,7 @@ public class Event {
     public String getLocation() {
         return location;
     }
+
     @Override
     public String toString() {
         return title;

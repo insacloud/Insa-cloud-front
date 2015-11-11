@@ -27,17 +27,17 @@ import insa.cloud.activity.MainActivity;
 /**
  * Created by Paul on 21/10/2015.
  */
-public class RequestVolley implements  RequestInterface{
+public class RequestVolley implements RequestInterface {
 
     @Override
     public void getEventList(final RequestCallback<Event[]> callback) {
-       getEventList(null,callback);
+        getEventList(null, callback);
     }
 
     @Override
-    public void getEventList(Location location,final RequestCallback<Event[]> callback) {
-        Map<String,String> locations = new HashMap<>();
-        if (location!=null) {
+    public void getEventList(Location location, final RequestCallback<Event[]> callback) {
+        Map<String, String> locations = new HashMap<>();
+        if (location != null) {
             locations.put("latitude", "" + location.getLatitude());
             locations.put("longitude", "" + location.getLongitude());
         }
@@ -49,11 +49,11 @@ public class RequestVolley implements  RequestInterface{
                     int arrayLength = array.length();
                     Event[] events = new Event[arrayLength];
                     for (int i = 0; i < arrayLength; i++) {
-                        events[i] = new Event(array.getJSONObject(i));
+                        events[i] =  Event.fromJson(array.getJSONObject(i));
                     }
                     callback.onResponse(events);
 
-                } catch (JSONException | ParseException e) {
+                } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
@@ -67,15 +67,13 @@ public class RequestVolley implements  RequestInterface{
     }
 
     @Override
-    public void getEvent(String id,final RequestCallback<Event> callback) {
+    public void getEvent(String id, final RequestCallback<Event> callback) {
         JsonObjectRequest request = new AuthentifiedJsonObjectRequest(Request.Method.GET, Url.Events + id + "/", null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) {
-                try {
-                    callback.onResponse(new Event(jsonObject));
-                } catch (JSONException | ParseException e) {
-                    e.printStackTrace();
-                }
+
+                callback.onResponse(Event.fromJson(jsonObject));
+
             }
         }, new Response.ErrorListener() {
             @Override
@@ -87,7 +85,7 @@ public class RequestVolley implements  RequestInterface{
     }
 
     @Override
-    public void login(String email, String password,final RequestCallback<JSONObject> callback ) {
+    public void login(String email, String password, final RequestCallback<JSONObject> callback) {
         JSONObject jsonObj = new JSONObject();
         try {
             jsonObj.put("email", email);
@@ -96,7 +94,7 @@ public class RequestVolley implements  RequestInterface{
             e.printStackTrace();
         }
 
-        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST ,
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.POST,
                 Url.Login, jsonObj, new Response.Listener<JSONObject>() {
 
             @Override

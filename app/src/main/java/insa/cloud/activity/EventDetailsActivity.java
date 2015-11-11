@@ -3,6 +3,7 @@ package insa.cloud.activity;
 import java.util.Locale;
 
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
@@ -18,6 +19,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.Button;
 
 import com.facebook.login.LoginManager;
 
@@ -26,6 +29,7 @@ import insa.cloud.fragment.EventInformationFragment;
 import insa.cloud.fragment.EventMosaicFragment;
 import insa.cloud.fragment.EventSendPhotoFragment;
 import insa.cloud.global.SessionManager;
+import insa.cloud.global.Util;
 
 public class EventDetailsActivity extends AppCompatActivity implements ActionBar.TabListener {
 
@@ -46,20 +50,27 @@ public class EventDetailsActivity extends AppCompatActivity implements ActionBar
     private Toolbar mToolbar;
     private TabLayout tabs;
     private SessionManager session;
+    private Button leftButton;
+    private Button rightButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_details);
 
+        int position = getIntent().getExtras().getInt("position");
+        String title= getIntent().getExtras().getString("eventTitle", getString(R.string.event));
+
         // Set up the action bar.
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        //mToolbar = (Toolbar) findViewById(R.id.toolbar);
 
-        setSupportActionBar(mToolbar);
-
-        getSupportActionBar().setTitle(R.string.event_details);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //setSupportActionBar(mToolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(title);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Util.getColorForPosition(position)));
+        }
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
@@ -69,10 +80,80 @@ public class EventDetailsActivity extends AppCompatActivity implements ActionBar
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
+
         tabs = (TabLayout) findViewById(R.id.tablayout);
         tabs.setupWithViewPager(mViewPager);
         TabLayout.Tab tab = tabs.getTabAt(1);
-        tab.select();
+        if (tab != null) {
+            tab.select();
+        }
+
+        leftButton = (Button) findViewById(R.id.event_detail_left_button);
+        rightButton = (Button) findViewById(R.id.event_detail_right_button);
+
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                switch (mViewPager.getCurrentItem()) {
+                    case 0:
+                        leftButton.setVisibility(View.GONE);
+                        rightButton.setBackgroundResource(R.drawable.information);
+                        break;
+                    case 1:
+                        leftButton.setVisibility(View.VISIBLE);
+                        leftButton.setBackgroundResource(R.drawable.mosaic);
+                        rightButton.setVisibility(View.VISIBLE);
+                        rightButton.setBackgroundResource(R.drawable.camera);
+                        break;
+                    case 2:
+                        rightButton.setVisibility(View.GONE);
+                        leftButton.setBackgroundResource(R.drawable.information);
+
+                }
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+
+        rightButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (mViewPager.getCurrentItem()) {
+                    case 0:
+                        mViewPager.setCurrentItem(1);
+                        break;
+                    case 1:
+                        mViewPager.setCurrentItem(2);
+                        break;
+
+                }
+            }
+        });
+
+        leftButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (mViewPager.getCurrentItem()) {
+                    case 1:
+                        mViewPager.setCurrentItem(0);
+                        break;
+                    case 2:
+                        mViewPager.setCurrentItem(1);
+                        break;
+                }
+            }
+        });
+
+
     }
 
 
@@ -90,8 +171,7 @@ public class EventDetailsActivity extends AppCompatActivity implements ActionBar
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        if (id == android.R.id.home)
-        {
+        if (id == android.R.id.home) {
 
         }
         //noinspection SimplifiableIfStatement

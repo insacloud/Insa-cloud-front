@@ -23,7 +23,7 @@ public class PicassoBlurTransformation implements Transformation {
         Bitmap blurredBitmap = Bitmap.createBitmap(bitmap);
 
         // Allocate memory for Renderscript to work with
-        Allocation input = Allocation.createFromBitmap(rs, bitmap, Allocation.MipmapControl.MIPMAP_FULL, Allocation.USAGE_SHARED);
+        Allocation input = Allocation.createFromBitmap(rs, bitmap, Allocation.MipmapControl.MIPMAP_FULL, Allocation.USAGE_SCRIPT);
         Allocation output = Allocation.createTyped(rs, input.getType());
 
         // Load up an instance of the specific script that we want to use.
